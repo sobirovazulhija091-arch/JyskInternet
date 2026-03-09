@@ -1,0 +1,132 @@
+@page "/brands"
+@layout AdminLayout
+@inject BrandApiService BrandApi
+@inject IJSRuntime JS
+
+<PageTitle>Brands - Jysk Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Brands</h5>
+        <button class="btn btn-primary btn-sm" @onclick="OpenAddModal">+ Add Brand</button>
+    </div>
+    <div class="card-body">
+        @if (_loading)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <div class="table-responsive admin-table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr><th>Id</th><th>Name</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in _brands)
+                        {
+                            <tr>
+                                <td class="text-muted">@b.Id</td>
+                                <td class="fw-medium">@b.Name</td>
+                                <td>
+                                    <div class="admin-action-btns">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(b)">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteBrand(b.Id)">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@if (_showModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_editingId.HasValue ? "Edit" : "Add") Brand</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <EditForm Model="_editDto" OnValidSubmit="SaveBrand">
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label">Name</label>
+                            <InputText class="form-control" @bind-Value="_editDto.Name" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Logo URL</label>
+                            <InputText class="form-control" @bind-Value="_editDto.Logo" placeholder="Optional" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Brand> _brands = [];
+    private bool _loading;
+    private bool _showModal;
+    private int? _editingId;
+    private BrandDto _editDto = new();
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        _loading = true;
+        try
+        {
+            var res = await BrandApi.GetAllAsync();
+            _brands = res?.Data ?? [];
+        }
+        finally { _loading = false; }
+    }
+
+    private void OpenAddModal()
+    {
+        _editingId = null;
+        _editDto = new BrandDto();
+        _showModal = true;
+    }
+
+    private void OpenEditModal(Brand b)
+    {
+        _editingId = b.Id;
+        _editDto = new BrandDto { Name = b.Name, Logo = b.Logo };
+        _showModal = true;
+    }
+
+    private void CloseModal() => _showModal = false;
+
+    private async Task SaveBrand()
+    {
+        if (_editingId.HasValue)
+            await BrandApi.UpdateAsync(_editingId.Value, _editDto);
+        else
+            await BrandApi.AddAsync(_editDto);
+        CloseModal();
+        await Load();
+    }
+
+    private async Task DeleteBrand(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Delete this brand?"))
+        {
+            await BrandApi.DeleteAsync(id);
+            await Load();
+        }
+    }
+}

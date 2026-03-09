@@ -1,0 +1,56 @@
+@page "/categories"
+@inject CategoryApiService CategoryApi
+
+<PageTitle>Categories - JYSK</PageTitle>
+
+<div class="jysk-categories-page">
+    <div class="container">
+        <div class="jysk-page-header">
+            <h1 class="jysk-page-title">Catalog</h1>
+            <p class="jysk-page-sub">Browse by category or search for products</p>
+            <NavLink href="/products" class="jysk-catalog-search-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                Search products
+            </NavLink>
+        </div>
+        @if (_loading)
+        {
+            <div class="jysk-loading">
+                <div class="jysk-spinner"></div>
+                <p>Loading...</p>
+            </div>
+        }
+        else if (_categories?.Any() == true)
+        {
+            <div class="jysk-category-grid">
+                @foreach (var c in _categories)
+                {
+                    <NavLink href="@($"/products?category={c.Id}")" class="jysk-category-card">
+                        <div class="jysk-category-image-place"></div>
+                        <span class="jysk-category-name">@c.Name</span>
+                        <span class="jysk-category-arrow">→</span>
+                    </NavLink>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="jysk-empty">
+                <p>No categories available.</p>
+                <NavLink href="/products" class="jysk-btn-primary">Browse Products</NavLink>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Category>? _categories;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CategoryApi.GetAllAsync() ?? [];
+        _loading = false;
+    }
+
+}

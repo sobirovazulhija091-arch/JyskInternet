@@ -1,0 +1,254 @@
+@page "/products"
+@layout AdminLayout
+@inject ProductApiService ProductApi
+@inject CategoryApiService CategoryApi
+@inject BrandApiService BrandApi
+@inject IJSRuntime JS
+
+<PageTitle>Products - Jysk Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="admin-products-page">
+    <div class="card border-0">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Products</h5>
+            <button class="btn btn-primary btn-sm" @onclick="OpenAddModal">+ Add Product</button>
+        </div>
+        <div class="card-body">
+            <div class="admin-filters mb-4">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Search..." @bind="_filter.Name" @bind:event="oninput" />
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" @bind="_filter.CategoryId">
+                            <option value="">All Categories</option>
+                            @foreach (var c in _categories)
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" @bind="_filter.BrandId">
+                            <option value="">All Brands</option>
+                            @foreach (var b in _brands)
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" @onclick="LoadProducts">Search</button>
+                    </div>
+                </div>
+            </div>
+            @if (_loading)
+            {
+                <p class="admin-loading">Loading...</p>
+            }
+            else
+            {
+                <div class="table-responsive admin-table-wrap">
+                    <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Category</th>
+                        <th>Active</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in _products)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>@p.Name</td>
+                            <td><span class="text-muted small" style="max-width:200px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="@p.Description">@(string.IsNullOrEmpty(p.Description) ? "-" : p.Description)</span></td>
+                            <td>@(p.Brand?.Name ?? "-")</td>
+                            <td>@p.Price.ToString("C")</td>
+                            <td>@p.StockQuantity</td>
+                            <td>@(p.Category?.Name ?? "-")</td>
+                            <td><span class="badge @(p.IsActive ? "bg-success" : "bg-secondary")">@(p.IsActive ? "Yes" : "No")</span></td>
+                            <td>
+                                <div class="admin-action-btns">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(p)">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProduct(p.Id)">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                    </table>
+                </div>
+                @if (_paged.HasPrevious || _paged.HasNext)
+                {
+                    <div class="admin-pagination mt-4">
+                        <button class="btn btn-sm btn-outline-secondary" disabled="@(!_paged.HasPrevious)" @onclick="PrevPage">Previous</button>
+                        <span class="text-muted">Page @_paged.Page of @_paged.TotalPages</span>
+                        <button class="btn btn-sm btn-outline-secondary" disabled="@(!_paged.HasNext)" @onclick="NextPage">Next</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@if (_showModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_editingId.HasValue ? "Edit" : "Add") Product</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <EditForm Model="_editDto" OnValidSubmit="SaveProduct">
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label">Name</label>
+                            <InputText class="form-control" @bind-Value="_editDto.Name" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <InputTextArea class="form-control" rows="2" @bind-Value="_editDto.Description" />
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <label class="form-label">Price</label>
+                                <InputNumber class="form-control" @bind-Value="_editDto.Price" />
+                            </div>
+                            <div class="col-6 mb-2">
+                                <label class="form-label">Stock</label>
+                                <InputNumber class="form-control" @bind-Value="_editDto.StockQuantity" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-2">
+                                <label class="form-label">Category</label>
+                                <InputSelect class="form-select" @bind-Value="_editDto.CategoryId">
+                                    @foreach (var c in _categories)
+                                    {
+                                        <option value="@c.Id">@c.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-6 mb-2">
+                                <label class="form-label">Brand</label>
+                                <InputSelect class="form-select" @bind-Value="_editDto.BrandId">
+                                    @foreach (var b in _brands)
+                                    {
+                                        <option value="@b.Id">@b.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="form-check">
+                                <InputCheckbox class="form-check-input" id="isActive" @bind-Value="_editDto.IsActive" />
+                                <label class="form-check-label" for="isActive">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Product> _products = [];
+    private List<Category> _categories = [];
+    private List<Brand> _brands = [];
+    private PagedResult<Product> _paged = new();
+    private FilterProduct _filter = new();
+    private PagedQuery _query = new() { Page = 1, PageSize = 10 };
+    private bool _loading;
+    private bool _showModal;
+    private int? _editingId;
+    private ProductDto _editDto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesAndBrands();
+        await LoadProducts();
+    }
+
+    private async Task LoadCategoriesAndBrands()
+    {
+        var catRes = await CategoryApi.GetAllAsync();
+        _categories = catRes?.Data ?? [];
+        var brandRes = await BrandApi.GetAllAsync();
+        _brands = brandRes?.Data ?? [];
+    }
+
+    private async Task LoadProducts()
+    {
+        _loading = true;
+        try
+        {
+            var result = await ProductApi.GetAllAsync(_filter, _query);
+            if (result != null)
+            {
+                _paged = result;
+                _products = result.Items;
+            }
+        }
+        finally { _loading = false; }
+    }
+
+    private void OpenAddModal()
+    {
+        _editingId = null;
+        _editDto = new ProductDto { IsActive = true, CategoryId = _categories.FirstOrDefault()?.Id ?? 0, BrandId = _brands.FirstOrDefault()?.Id ?? 0 };
+        if (_editDto.CategoryId == 0 && _categories.Count > 0) _editDto.CategoryId = _categories[0].Id;
+        if (_editDto.BrandId == 0 && _brands.Count > 0) _editDto.BrandId = _brands[0].Id;
+        _showModal = true;
+    }
+
+    private void OpenEditModal(Product p)
+    {
+        _editingId = p.Id;
+        _editDto = new ProductDto { Id = p.Id, Name = p.Name, Description = p.Description, Price = p.Price, StockQuantity = p.StockQuantity, CategoryId = p.CategoryId, BrandId = p.BrandId, IsActive = p.IsActive, DiscountPrice = p.DiscountPrice, ImageUrl = p.ImageUrl };
+        _showModal = true;
+    }
+
+    private void CloseModal() => _showModal = false;
+
+    private async Task SaveProduct()
+    {
+        if (_editingId.HasValue)
+        {
+            await ProductApi.UpdateAsync(_editingId.Value, _editDto);
+        }
+        else
+        {
+            await ProductApi.AddAsync(_editDto);
+        }
+        CloseModal();
+        await LoadProducts();
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Delete this product?"))
+        {
+            await ProductApi.DeleteAsync(id);
+            await LoadProducts();
+        }
+    }
+
+    private async Task PrevPage() { _query.Page--; await LoadProducts(); }
+    private async Task NextPage() { _query.Page++; await LoadProducts(); }
+}

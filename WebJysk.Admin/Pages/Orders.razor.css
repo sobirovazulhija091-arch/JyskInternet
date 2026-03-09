@@ -1,0 +1,143 @@
+.orders-page .card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.orders-page .card-header {
+    background: #fff;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.orders-page .card-body {
+    padding: 1.5rem;
+}
+
+.orders-filters {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.orders-filters .form-select {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.orders-filters .btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.orders-filters .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 102, 179, 0.35);
+}
+
+.orders-table-wrap {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.orders-page .table {
+    margin: 0;
+}
+
+.orders-page .table thead th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    padding: 1rem 1.25rem;
+    border: none;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.orders-page .table tbody td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+}
+
+.orders-page .table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.orders-page .table tbody tr:hover {
+    background: #f1f5f9 !important;
+}
+
+.orders-page .table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.orders-status-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.875rem;
+    min-width: 130px;
+    font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.orders-status-select:hover {
+    border-color: #cbd5e1;
+}
+
+.orders-status-select:focus {
+    border-color: var(--admin-primary, #0066b3);
+    box-shadow: 0 0 0 2px rgba(0, 102, 179, 0.2);
+}
+
+/* Status badge colors: Paid=green, Processing=blue, Delivered=purple, Cancelled=red */
+.orders-status-select.status-1 {
+    background-color: rgba(5, 150, 105, 0.12);
+    color: #059669;
+}
+.orders-status-select.status-2 {
+    background-color: rgba(37, 99, 235, 0.12);
+    color: #2563eb;
+}
+.orders-status-select.status-3 {
+    background-color: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
+}
+.orders-status-select.status-4 {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+}
+
+.orders-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.orders-pagination .btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.orders-pagination .btn:hover:not(:disabled) {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.orders-loading {
+    text-align: center;
+    padding: 3rem;
+    color: #64748b;
+}

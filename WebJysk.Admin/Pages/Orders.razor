@@ -1,0 +1,115 @@
+@page "/orders"
+@layout AdminLayout
+@inject OrderApiService OrderApi
+@inject IJSRuntime JS
+
+<PageTitle>Orders - Jysk Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="orders-page">
+    <div class="card border-0">
+        <div class="card-header">Orders</div>
+        <div class="card-body">
+            <div class="orders-filters">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <select class="form-select" @bind="_statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="1">Paid</option>
+                            <option value="2">Processing</option>
+                            <option value="3">Delivered</option>
+                            <option value="4">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" @onclick="Load">Filter</button>
+                    </div>
+                </div>
+            </div>
+            @if (_loading)
+            {
+                <div class="orders-loading">Loading orders...</div>
+            }
+            else
+            {
+                <div class="table-responsive orders-table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>User</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in _orders)
+                            {
+                                <tr>
+                                    <td><span class="fw-medium">#@o.Id</span></td>
+                                    <td>@(o.User?.FullName ?? o.UserId ?? "-")</td>
+                                    <td>@o.OrderDate.ToString("yyyy-MM-dd")</td>
+                                    <td class="fw-semibold">@o.TotalAmount.ToString("C")</td>
+                                    <td>
+                                        <select class="form-select orders-status-select status-@((int)o.Status)" value="@((int)o.Status)" @onchange="@(e => OnStatusChange(o.Id, e))">
+                                            <option value="1">Paid</option>
+                                            <option value="2">Processing</option>
+                                            <option value="3">Delivered</option>
+                                            <option value="4">Cancelled</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (_paged.HasPrevious || _paged.HasNext)
+                {
+                    <div class="orders-pagination">
+                        <button class="btn btn-outline-secondary btn-sm" disabled="@(!_paged.HasPrevious)" @onclick="PrevPage">← Previous</button>
+                        <span class="text-muted">Page @_paged.Page of @_paged.TotalPages</span>
+                        <button class="btn btn-outline-secondary btn-sm" disabled="@(!_paged.HasNext)" @onclick="NextPage">Next →</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Order> _orders = [];
+    private PagedResult<Order> _paged = new();
+    private FilterOrder _filter = new();
+    private PagedQuery _query = new() { Page = 1, PageSize = 15 };
+    private bool _loading;
+    private string _statusFilter = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        _loading = true;
+        try
+        {
+            _filter.Status = int.TryParse(_statusFilter, out var s) ? (EnumStatus)s : null;
+            var res = await OrderApi.GetAllAsync(_filter, _query);
+            if (res != null) { _paged = res; _orders = res.Items; }
+        }
+        finally { _loading = false; }
+    }
+
+    private async Task OnStatusChange(int id, ChangeEventArgs e)
+    {
+        var val = e.Value?.ToString();
+        if (int.TryParse(val, out var s))
+        {
+            await OrderApi.UpdateStatusAsync(id, (EnumStatus)s);
+            await Load();
+        }
+    }
+
+    private async Task PrevPage() { _query.Page--; await Load(); }
+    private async Task NextPage() { _query.Page++; await Load(); }
+}

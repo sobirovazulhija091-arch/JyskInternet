@@ -1,0 +1,178 @@
+@page "/products"
+@inject ProductApiService ProductApi
+@inject CategoryApiService CategoryApi
+@inject BrandApiService BrandApi
+@inject NavigationManager Nav
+
+<PageTitle>@(_showDiscount ? "Sale Items" : "Products") - JYSK</PageTitle>
+
+<div class="products-page">
+<div class="container">
+    <div class="products-page-header">
+        <h2 class="jysk-section-title mb-0">@(_showDiscount ? "Sale Items" : "Products")</h2>
+        <div class="products-search-bar">
+            <input type="text" class="form-control" placeholder="Search products..." @bind="_search" @bind:event="oninput" @onkeydown="OnSearchKeydown" />
+            <button class="btn jysk-btn-filter" @onclick="ApplyFilters">Search</button>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <aside class="col-md-3 mb-4">
+            <div class="card border">
+                <div class="card-header bg-light">Filters</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-control" placeholder="Product name..." @bind="_search" @bind:event="oninput" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" @bind="_categoryId">
+                            <option value="">All</option>
+                            @foreach (var c in _categories ?? [])
+                            {
+                                <option value="@c.Id">@c.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Brand</label>
+                        <select class="form-select" @bind="_brandId">
+                            <option value="">All</option>
+                            @foreach (var b in _brands ?? [])
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <button class="btn w-100 jysk-btn-filter" @onclick="ApplyFilters">Search</button>
+                </div>
+            </div>
+        </aside>
+        <div class="col-md-9">
+            @if (_loading)
+            {
+                <p>Loading...</p>
+            }
+            else if (_products?.Any() == true)
+            {
+                <div class="row g-4">
+                    @foreach (var p in _products)
+                    {
+                        <div class="col-6 col-lg-4">
+                            <ProductCard Product="@p" />
+                        </div>
+                    }
+                </div>
+                @if (_totalPages > 1)
+                {
+                    <nav class="jysk-pagination mt-4">
+                        <button class="jysk-page-btn" @onclick="PrevPage" disabled="@(_page <= 1)">←</button>
+                        @for (var i = 1; i <= Math.Min(_totalPages, 5); i++)
+                        {
+                            var p = i;
+                            <button class="jysk-page-btn @(p == _page ? "active" : "")" @onclick="() => GoToPage(p)">@p</button>
+                        }
+                        @if (_totalPages > 5)
+                        {
+                            <span class="jysk-page-ellipsis">...</span>
+                            <button class="jysk-page-btn @(_page == _totalPages ? "active" : "")" @onclick="() => GoToPage(_totalPages)">@_totalPages</button>
+                        }
+                        <button class="jysk-page-btn" @onclick="NextPage" disabled="@(_page >= _totalPages)">→</button>
+                    </nav>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No products found. Try different filters.</p>
+            }
+        </div>
+    </div>
+</div>
+</div>
+
+@code {
+    private List<Product> _products = [];
+    private List<Category>? _categories;
+    private List<Brand>? _brands;
+    private bool _loading = true;
+    private int _page = 1;
+    private int _totalPages = 1;
+    private string _search = "";
+    private string _categoryId = "";
+    private string _brandId = "";
+    private bool _showDiscount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ParseQuery();
+        await LoadFilters();
+        await LoadProducts();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ParseQuery();
+        await LoadProducts();
+    }
+
+    private void ParseQuery()
+    {
+        var uri = new Uri(Nav.Uri);
+        var query = uri.Query.TrimStart('?').Split('&')
+            .Select(p => p.Split('=', 2))
+            .Where(p => p.Length == 2)
+            .ToDictionary(p => p[0], p => Uri.UnescapeDataString(p[1]), StringComparer.OrdinalIgnoreCase);
+        if (query.TryGetValue("category", out var catVal) && int.TryParse(catVal, out var cat)) _categoryId = cat.ToString();
+        if (query.TryGetValue("brand", out var brandVal) && int.TryParse(brandVal, out var brand)) _brandId = brand.ToString();
+        _showDiscount = query.TryGetValue("discount", out var d) && (d == "true" || d == "1");
+    }
+
+    private async Task LoadFilters()
+    {
+        _categories = await CategoryApi.GetAllAsync() ?? [];
+        _brands = await BrandApi.GetAllAsync() ?? [];
+    }
+
+    private async Task LoadProducts()
+    {
+        _loading = true;
+        try
+        {
+            var cat = int.TryParse(_categoryId, out var c) ? c : (int?)null;
+            var brand = int.TryParse(_brandId, out var b) ? b : (int?)null;
+            var search = string.IsNullOrWhiteSpace(_search) ? null : _search;
+            var result = await ProductApi.GetProductsAsync(_page, 12, cat, brand, search);
+            _products = result?.Items ?? [];
+            _totalPages = result?.TotalPages ?? 1;
+        }
+        finally { _loading = false; }
+    }
+
+    private async Task ApplyFilters()
+    {
+        _page = 1;
+        await LoadProducts();
+    }
+
+    private async Task PrevPage()
+    {
+        if (_page > 1) { _page--; await LoadProducts(); }
+    }
+
+    private async Task NextPage()
+    {
+        if (_page < _totalPages) { _page++; await LoadProducts(); }
+    }
+
+    private async Task GoToPage(int p)
+    {
+        _page = p;
+        await LoadProducts();
+    }
+
+    private async Task OnSearchKeydown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await ApplyFilters();
+    }
+}

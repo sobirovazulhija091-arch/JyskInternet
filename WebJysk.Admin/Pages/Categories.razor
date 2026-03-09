@@ -1,0 +1,151 @@
+@page "/categories"
+@layout AdminLayout
+@inject CategoryApiService CategoryApi
+@inject IJSRuntime JS
+
+<PageTitle>Categories - Jysk Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Categories</h5>
+        <button class="btn btn-primary btn-sm" @onclick="OpenAddModal">+ Add Category</button>
+    </div>
+    <div class="card-body">
+        @if (_loading)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <div class="table-responsive admin-table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr><th>Id</th><th>Name</th><th>Parent</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in _categories)
+                        {
+                            <tr>
+                                <td class="text-muted">@c.Id</td>
+                                <td class="fw-medium">@c.Name</td>
+                                <td>@(c.Parent?.Name ?? "-")</td>
+                                <td>
+                                    <div class="admin-action-btns">
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenEditModal(c)">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCategory(c.Id)">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@if (_showModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(_editingId.HasValue ? "Edit" : "Add") Category</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <EditForm Model="_editDto" OnValidSubmit="SaveCategory">
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <label class="form-label">Name</label>
+                            <InputText class="form-control" @bind-Value="_editDto.Name" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Parent Category</label>
+                            <InputSelect class="form-select" @bind-Value="_parentIdStr">
+                                <option value="">None</option>
+                                @foreach (var c in _categories.Where(x => x.Id != _editingId))
+                                {
+                                    <option value="@c.Id">@c.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Category> _categories = [];
+    private bool _loading;
+    private bool _showModal;
+    private int? _editingId;
+    private CategoryDto _editDto = new();
+    private string _parentIdStr = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        _loading = true;
+        try
+        {
+            var res = await CategoryApi.GetAllAsync();
+            _categories = res?.Data ?? [];
+        }
+        finally { _loading = false; }
+    }
+
+    private void OpenAddModal()
+    {
+        _editingId = null;
+        _editDto = new CategoryDto();
+        _parentIdStr = "";
+        _showModal = true;
+    }
+
+    private void OpenEditModal(Category c)
+    {
+        _editingId = c.Id;
+        _editDto = new CategoryDto { Id = c.Id, Name = c.Name, ImageUrl = c.ImageUrl, ParentId = c.ParentId };
+        _parentIdStr = c.ParentId?.ToString() ?? "";
+        _showModal = true;
+    }
+
+    private void CloseModal() => _showModal = false;
+
+    private async Task SaveCategory()
+    {
+        _editDto.ParentId = string.IsNullOrWhiteSpace(_parentIdStr) || !int.TryParse(_parentIdStr, out var pid) ? null : pid;
+        try
+        {
+            if (_editingId.HasValue)
+                await CategoryApi.UpdateAsync(_editingId.Value, _editDto);
+            else
+                await CategoryApi.AddAsync(_editDto);
+            CloseModal();
+            await Load();
+        }
+        catch
+        {
+            _loading = false;
+            throw;
+        }
+    }
+
+    private async Task DeleteCategory(int id)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Delete this category?"))
+        {
+            await CategoryApi.DeleteAsync(id);
+            await Load();
+        }
+    }
+}

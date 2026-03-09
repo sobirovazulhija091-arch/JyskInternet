@@ -1,0 +1,96 @@
+.jysk-about {
+    background: #fafbfc;
+}
+
+.jysk-about-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+}
+
+.jysk-about-lead {
+    font-size: 1.15rem;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+}
+
+.jysk-about-section {
+    margin-bottom: 2rem;
+}
+
+.jysk-about-heading {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--jysk-blue);
+    margin-bottom: 0.75rem;
+}
+
+.jysk-about-section p {
+    color: #444;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.jysk-about-divider {
+    border-color: #e0e0e0;
+    margin: 2.5rem 0;
+}
+
+.jysk-about-subtitle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.jysk-about-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.jysk-about-link {
+    color: var(--jysk-blue);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+}
+
+.jysk-about-link:hover {
+    color: var(--jysk-blue-dark);
+    text-decoration: underline;
+    padding-left: 4px;
+}
+
+.jysk-about-contact {
+    font-style: normal;
+    color: #444;
+}
+
+.jysk-about-contact a {
+    color: var(--jysk-blue);
+    text-decoration: none;
+}
+
+.jysk-about-contact a:hover {
+    text-decoration: underline;
+}
+
+.jysk-about-social {
+    color: var(--jysk-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.jysk-about-social:hover {
+    color: var(--jysk-blue-dark);
+    text-decoration: underline;
+}
+
+.jysk-about-copy {
+    color: #888;
+    font-size: 0.9rem;
+}

@@ -1,0 +1,116 @@
+@page "/cart"
+@inject CartService CartService
+@inject AuthService Auth
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Cart - Jysk</PageTitle>
+
+@if (!_canViewCart)
+{
+    <div class="container py-5 text-center">
+        <p class="mb-3">Please log in to view your cart and checkout.</p>
+        <NavLink href="/login" class="btn btn-primary">Log in</NavLink>
+    </div>
+}
+else
+{
+<div class="container jysk-cart-page">
+    <h2 class="jysk-section-title mb-4">Your Cart</h2>
+    @if (_items?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="jysk-cart-image-placeholder"></div>
+                                    @item.ProductName
+                                </div>
+                            </td>
+                            <td>@item.Price.ToString("C")</td>
+                            <td>
+                                <div class="input-group input-group-sm" style="width:120px">
+                                    <button class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, item.Quantity - 1)">-</button>
+                                    <input type="number" class="form-control text-center" value="@item.Quantity" @onchange="e => OnQtyChange(item.ProductId, e)" min="1" />
+                                    <button class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, item.Quantity + 1)">+</button>
+                                </div>
+                            </td>
+                            <td>@((item.Price * item.Quantity).ToString("C"))</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => Remove(item.ProductId)">Remove</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <NavLink href="/products" class="jysk-btn-outline">Continue Shopping</NavLink>
+            <div>
+                <strong>Total: @_total.ToString("C")</strong>
+                <p class="small text-muted mb-0">Checkout requires login. Browse and add items to cart.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">Your cart is empty.</p>
+        <NavLink href="/products" class="jysk-hero-btn">Browse Products</NavLink>
+    }
+</div>
+}
+
+@code {
+    private bool _canViewCart;
+    private List<CartItem> _items = [];
+    private decimal _total;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _canViewCart = await Auth.IsAuthenticatedAsync();
+        if (!_canViewCart) return;
+        CartService.OnChange += OnCartChanged;
+        await LoadCart();
+    }
+
+    private void OnCartChanged() => _ = LoadCart();
+
+    private async Task LoadCart()
+    {
+        _items = await CartService.GetItemsAsync();
+        _total = _items.Sum(i => i.Price * i.Quantity);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose() => CartService.OnChange -= OnCartChanged;
+
+    private async Task UpdateQty(int productId, int qty)
+    {
+        if (qty < 1) return;
+        await CartService.UpdateQuantityAsync(productId, qty);
+    }
+
+    private async Task OnQtyChange(int productId, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var qty) && qty >= 1)
+            await CartService.UpdateQuantityAsync(productId, qty);
+    }
+
+    private async Task Remove(int productId)
+    {
+        await CartService.RemoveAsync(productId);
+    }
+}

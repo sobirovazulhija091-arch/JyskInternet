@@ -1,0 +1,41 @@
+@implements IDisposable
+
+<div class="hero-carousel">
+    <div class="hero-carousel-track" style="transform: translateX(@(-100 * _index)%)">
+        <div class="hero-slide hero-slide-0"></div>
+        <div class="hero-slide hero-slide-1"></div>
+        <div class="hero-slide hero-slide-2"></div>
+    </div>
+    <button class="hero-carousel-btn hero-carousel-prev" aria-label="Previous" @onclick="Prev">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="hero-carousel-btn hero-carousel-next" aria-label="Next" @onclick="Next">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="hero-carousel-dots">
+        @for (var i = 0; i < 3; i++)
+        {
+            var idx = i;
+            <button class="hero-dot @(i == _index ? "active" : "")" aria-label="Go to slide @(i+1)" @onclick="() => GoTo(idx)"></button>
+        }
+    </div>
+</div>
+
+@code {
+    private int _index;
+    private System.Threading.Timer? _autoTimer;
+
+    protected override void OnInitialized()
+    {
+        _autoTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() => { Next(); StateHasChanged(); });
+        }, null, 5000, 5000);
+    }
+
+    private void Next() => _index = (_index + 1) % 3;
+    private void Prev() => _index = (_index + 2) % 3;
+    private void GoTo(int i) => _index = i;
+
+    public void Dispose() => _autoTimer?.Dispose();
+}

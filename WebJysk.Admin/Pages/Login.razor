@@ -1,0 +1,67 @@
+@page "/login"
+@inject AuthService Auth
+@inject NavigationManager Nav
+@layout EmptyLayout
+
+<PageTitle>Login - JYSK Admin</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>JYSK Admin</h2>
+            <p class="login-subtitle">Sign in to manage your store</p>
+        </div>
+
+        <EditForm Model="@_model" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="login-validation" />
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText @bind-Value="_model.Email" class="form-control" placeholder="admin@jysk.local" id="email" />
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText type="password" @bind-Value="_model.Password" class="form-control" placeholder="••••••••" id="password" />
+            </div>
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <div class="login-error">@_error</div>
+            }
+            <button type="submit" class="btn btn-primary w-100 login-btn" disabled="@_loading">
+                @(_loading ? "Signing in..." : "Sign In")
+            </button>
+        </EditForm>
+
+        <p class="login-hint">Default: admin@jysk.local / Admin1234</p>
+    </div>
+</div>
+
+@code {
+    private LoginModel _model = new();
+    private string? _error;
+    private bool _loading;
+
+    private async Task HandleLogin()
+    {
+        _error = null;
+        _loading = true;
+        try
+        {
+            var (success, error) = await Auth.LoginAsync(_model.Email!, _model.Password!);
+            if (success)
+                Nav.NavigateTo("/", true);
+            else
+                _error = error ?? "Invalid email or password.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private class LoginModel
+    {
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+    }
+}

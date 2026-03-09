@@ -1,0 +1,69 @@
+@page "/"
+@layout AdminLayout
+@inject ProductApiService ProductApi
+@inject OrderApiService OrderApi
+@inject UserApiService UserApi
+
+<PageTitle>Dashboard - JYSK Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="dashboard-page">
+    <h1>Dashboard</h1>
+
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon products">📦</div>
+            <div class="dashboard-card-label">Total Products</div>
+            <div class="dashboard-card-value">@_productCount</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon orders">🛒</div>
+            <div class="dashboard-card-label">Total Orders</div>
+            <div class="dashboard-card-value">@_orderCount</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon users">👥</div>
+            <div class="dashboard-card-label">Total Users</div>
+            <div class="dashboard-card-value">@_userCount</div>
+        </div>
+        <div class="dashboard-card">
+            <div class="dashboard-card-icon revenue">💰</div>
+            <div class="dashboard-card-label">Revenue</div>
+            <div class="dashboard-card-value">@_revenue.ToString("C")</div>
+        </div>
+    </div>
+
+    <div class="dashboard-welcome">
+        <h2>Welcome to JYSK Admin</h2>
+        <p>Manage products, categories, brands, orders, and users from the sidebar.</p>
+    </div>
+</div>
+
+@code {
+    private int _productCount;
+    private int _orderCount;
+    private int _userCount;
+    private decimal _revenue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var products = await ProductApi.GetAllAsync(null, new PagedQuery { Page = 1, PageSize = 1 });
+            _productCount = products?.TotalCount ?? 0;
+
+            var orders = await OrderApi.GetAllAsync(null, new PagedQuery { Page = 1, PageSize = 1000 });
+            _orderCount = orders?.TotalCount ?? 0;
+            _revenue = orders?.Items?.Sum(o => o.TotalAmount) ?? 0;
+
+            var users = await UserApi.GetAllAsync(null, new PagedQuery { Page = 1, PageSize = 1 });
+            _userCount = users?.TotalCount ?? 0;
+        }
+        catch
+        {
+            _productCount = _orderCount = _userCount = 0;
+            _revenue = 0;
+        }
+    }
+}

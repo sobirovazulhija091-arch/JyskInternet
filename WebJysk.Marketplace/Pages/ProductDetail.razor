@@ -1,0 +1,115 @@
+@page "/product/{Id:int}"
+@inject ProductApiService ProductApi
+@inject CartService Cart
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>@(_product?.Name ?? "Product") - JYSK</PageTitle>
+
+<div class="jysk-product-detail">
+    @if (_loading)
+    {
+        <div class="container text-center py-5">
+            <div class="jysk-spinner-large"></div>
+            <p class="mt-3">Loading...</p>
+        </div>
+    }
+    else if (_product == null)
+    {
+        <div class="container py-5">
+            <p>Product not found.</p>
+            <NavLink href="/products" class="jysk-link">← Back to products</NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            <nav class="jysk-breadcrumb" aria-label="breadcrumb">
+                <NavLink href="/home">Home</NavLink>
+                <span class="jysk-breadcrumb-sep">/</span>
+                <NavLink href="/products">Products</NavLink>
+                @if (_product.Category != null)
+                {
+                    <span class="jysk-breadcrumb-sep">/</span>
+                    <NavLink href="@($"/products?category={_product.Category.Id}")">@_product.Category.Name</NavLink>
+                }
+                <span class="jysk-breadcrumb-sep">/</span>
+                <span class="jysk-breadcrumb-current">@_product.Name</span>
+            </nav>
+
+            <div class="jysk-product-detail-grid">
+                <div class="jysk-product-detail-image">
+                    <div class="jysk-product-detail-placeholder"></div>
+                </div>
+                <div class="jysk-product-detail-info">
+                    @if (_product.Category != null)
+                    {
+                        <NavLink href="@($"/products?category={_product.Category.Id}")" class="jysk-product-category-link">@_product.Category.Name</NavLink>
+                    }
+                    <h1 class="jysk-product-detail-title">@_product.Name</h1>
+                    <div class="jysk-product-detail-price">
+                        @if (_product.DiscountPrice > 0)
+                        {
+                            <span class="jysk-price-current">@_product.DiscountPrice.ToString("N2") SM</span>
+                            <span class="jysk-price-old">@_product.Price.ToString("N2") SM</span>
+                        }
+                        else
+                        {
+                            <span class="jysk-price-current">@_product.Price.ToString("N2") SM</span>
+                        }
+                    </div>
+                    <p class="jysk-product-detail-desc">@_product.Description</p>
+                    <div class="jysk-product-meta">
+                        <span>Article: @_product.Id</span>
+                        @if (_product.Category != null)
+                        {
+                            <span>Category: <NavLink href="@($"/products?category={_product.Category.Id}")">@_product.Category.Name</NavLink></span>
+                        }
+                        <span>In stock: @_product.StockQuantity</span>
+                    </div>
+                    <div class="jysk-product-detail-actions">
+                        @if (_canAddToCart)
+                        {
+                            <input type="number" class="jysk-qty-input" @bind="_quantity" min="1" max="@_product.StockQuantity" />
+                            <button class="jysk-btn-add-lg" @onclick="AddToCart">Add to Cart</button>
+                        }
+                        else
+                        {
+                            <NavLink href="/login" class="jysk-btn-add-lg jysk-btn-login-link">Login to add to cart</NavLink>
+                        }
+                    </div>
+                    @if (_added)
+                    {
+                        <p class="jysk-added-msg">✓ Added to cart!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Product? _product;
+    private bool _loading = true;
+    private int _quantity = 1;
+    private bool _added;
+    private bool _canAddToCart = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        _canAddToCart = await Auth.IsAuthenticatedAsync();
+        _product = await ProductApi.GetByIdAsync(Id);
+        _loading = false;
+    }
+
+    private async Task AddToCart()
+    {
+        if (_product == null) return;
+        await Cart.AddAsync(_product, _quantity);
+        _added = true;
+    }
+}

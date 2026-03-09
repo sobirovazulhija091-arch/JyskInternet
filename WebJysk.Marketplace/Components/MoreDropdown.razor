@@ -1,0 +1,36 @@
+<div class="more-dropdown" @onmouseenter="OnEnter" @onmouseleave="OnLeave">
+    <button class="more-btn @(_open ? "active" : "")">
+        <span>More</span>
+        <span class="more-chevron">▼</span>
+    </button>
+    @if (_open)
+    {
+        <div class="more-menu">
+            <NavLink href="/about" class="more-link" @onclick="Close">About JYSK</NavLink>
+            <NavLink href="/products" class="more-link" @onclick="Close">Promotions</NavLink>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _open;
+    private System.Threading.Timer? _closeTimer;
+
+    private void OnEnter()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
+        _open = true;
+    }
+
+    private void OnLeave()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() => { Close(); StateHasChanged(); });
+        }, null, 180, System.Threading.Timeout.Infinite);
+    }
+
+    private void Close() { _open = false; _closeTimer?.Dispose(); _closeTimer = null; }
+}

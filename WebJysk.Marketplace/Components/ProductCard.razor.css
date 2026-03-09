@@ -1,0 +1,159 @@
+.jysk-product-card {
+    background: #fff;
+    border: 1px solid #e8eaed;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.jysk-product-card:hover {
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    border-color: rgba(0,102,179,0.2);
+    transform: translateY(-4px);
+}
+
+.jysk-product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.jysk-product-image-wrap {
+    position: relative;
+    aspect-ratio: 1;
+    background: #f5f5f5;
+    border: 1px dashed #ccc;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.jysk-product-sale {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    z-index: 2;
+    border-radius: 4px;
+}
+
+.jysk-product-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+}
+
+.jysk-product-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    padding: 2rem 1rem 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.jysk-product-card:hover .jysk-product-overlay {
+    opacity: 1;
+}
+
+.jysk-product-quick {
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.jysk-product-body {
+    padding: 1.25rem 1rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.jysk-product-name {
+    color: var(--jysk-blue, #0066b3);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.25s ease;
+}
+
+.jysk-product-link:hover .jysk-product-name {
+    color: var(--jysk-blue-dark);
+}
+
+.jysk-product-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.jysk-product-price-old {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 0.9rem;
+}
+
+.jysk-product-price-new {
+    color: #c00;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.jysk-product-price-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    width: 100%;
+}
+
+.jysk-product-price-current {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+}
+
+.jysk-product-btn {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--jysk-blue, #0066b3);
+    color: #fff;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    border-radius: 0 0 12px 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.jysk-product-btn:hover {
+    background: var(--jysk-blue-dark, #004d8c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,102,179,0.4);
+}
+
+.jysk-product-btn:active {
+    transform: translateY(0);
+}
+
+.jysk-product-btn-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+    color: #fff !important;
+}
+
+.jysk-product-btn-login:hover {
+    color: #fff !important;
+}

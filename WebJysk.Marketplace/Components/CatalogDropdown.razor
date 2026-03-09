@@ -1,0 +1,105 @@
+@inject CategoryApiService CategoryApi
+
+<div class="catalog-dropdown" @onmouseenter="OnEnter" @onmouseleave="OnLeave">
+    <button class="catalog-btn @(_open ? "active" : "")">
+        <span>Catalog</span>
+        <span class="catalog-chevron">▼</span>
+    </button>
+    @if (_open)
+    {
+        <div class="catalog-mega">
+            <div class="catalog-mega-row">
+                <div class="catalog-panel catalog-panel-main">
+                    @if (_categories?.Any() == true)
+                    {
+                        var parents = _categories.Where(x => !x.ParentId.HasValue).ToList();
+                        var children = _categories.Where(x => x.ParentId.HasValue).ToLookup(x => x.ParentId!.Value);
+                        @foreach (var parent in parents)
+                        {
+                            var subs = children[parent.Id].ToList();
+                            <div class="catalog-parent-wrap" @onmouseenter="() => SetHover(parent.Id)" @onmouseleave="() => SetHover(null)">
+                                <NavLink href="@($"/products?category={parent.Id}")" class="@GetParentClass(parent.Id)" @onclick="Close">
+                                    <span>@parent.Name</span>
+                                    @if (subs.Any())
+                                    {
+                                        <span class="catalog-arrow">→</span>
+                                    }
+                                </NavLink>
+                            </div>
+                        }
+                        @if (!parents.Any())
+                        {
+                            @foreach (var c in _categories)
+                            {
+                                <NavLink href="@($"/products?category={c.Id}")" class="catalog-item-simple" @onclick="Close">@c.Name →</NavLink>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <NavLink href="/categories" class="catalog-item-simple" @onclick="Close">All Categories →</NavLink>
+                    }
+                </div>
+                @if (_hoverCategory != null)
+                {
+                    <div class="catalog-panel catalog-panel-flyout">
+                        <div class="catalog-flyout-header">@_hoverCategory.Name</div>
+                        @foreach (var sub in _hoverSubs)
+                        {
+                            <NavLink href="@($"/products?category={sub.Id}")" class="catalog-flyout-item" @onclick="Close">@sub.Name</NavLink>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _open;
+    private List<Category>? _categories;
+    private int? _hoverId;
+    private Category? _hoverCategory;
+    private List<Category> _hoverSubs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CategoryApi.GetAllAsync() ?? [];
+    }
+
+    private System.Threading.Timer? _closeTimer;
+
+    private void OnEnter()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
+        _open = true;
+    }
+
+    private void OnLeave()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() => { Close(); StateHasChanged(); });
+        }, null, 220, System.Threading.Timeout.Infinite);
+    }
+
+    private void Open() => _open = true;
+    private void Close() { _open = false; _hoverId = null; _hoverCategory = null; _closeTimer?.Dispose(); _closeTimer = null; }
+
+    private string GetParentClass(int parentId) => _hoverId == parentId ? "catalog-parent active" : "catalog-parent";
+
+    private void SetHover(int? id)
+    {
+        _hoverId = id;
+        if (!id.HasValue || _categories == null)
+        {
+            _hoverCategory = null;
+            _hoverSubs = [];
+            return;
+        }
+        _hoverCategory = _categories.FirstOrDefault(c => c.Id == id);
+        _hoverSubs = _categories.Where(c => c.ParentId == id).ToList();
+    }
+}

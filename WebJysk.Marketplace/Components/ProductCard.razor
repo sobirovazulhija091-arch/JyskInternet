@@ -1,0 +1,61 @@
+@inject CartService Cart
+@inject AuthService Auth
+
+<div class="jysk-product-card">
+    <NavLink href="@($"/product/{Product.Id}")" class="jysk-product-link">
+        <div class="jysk-product-image-wrap">
+            @if (Product.DiscountPrice > 0)
+            {
+                <span class="jysk-product-sale">Sale</span>
+            }
+            <div class="jysk-product-placeholder"></div>
+            <div class="jysk-product-overlay">
+                <span class="jysk-product-quick">Details</span>
+            </div>
+        </div>
+        <div class="jysk-product-body">
+            <h3 class="jysk-product-name">@Product.Name</h3>
+            <div class="jysk-product-price">
+                @if (Product.DiscountPrice > 0)
+                {
+                    <span class="jysk-product-price-old">@Product.Price.ToString("N2") SM</span>
+                    <span class="jysk-product-price-new">@Product.DiscountPrice.ToString("N2") SM</span>
+                    <span class="jysk-product-price-label">Current price</span>
+                }
+                else
+                {
+                    <span class="jysk-product-price-current">@Product.Price.ToString("N2") SM</span>
+                }
+            </div>
+        </div>
+    </NavLink>
+    @if (_canAddToCart)
+    {
+        <button class="jysk-product-btn" @onclick="AddToCart">
+            <span>Add to Cart</span>
+        </button>
+    }
+    else
+    {
+        <NavLink href="/login" class="jysk-product-btn jysk-product-btn-login">
+            <span>Login to add to cart</span>
+        </NavLink>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Product Product { get; set; } = null!;
+
+    private bool _canAddToCart = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _canAddToCart = await Auth.IsAuthenticatedAsync();
+    }
+
+    private async Task AddToCart()
+    {
+        await Cart.AddAsync(Product);
+    }
+}

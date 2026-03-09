@@ -1,0 +1,111 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0066b3 0%, #0088dd 50%, #004d8c 100%);
+    padding: 2rem;
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.25);
+}
+
+.login-card h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0066b3;
+    margin-bottom: 0.25rem;
+}
+
+.login-card .text-muted {
+    color: #6c757d !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.login-card .form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 2px solid #e8eaed;
+    font-size: 1rem;
+}
+
+.login-card .form-control:focus {
+    border-color: #0066b3;
+    box-shadow: 0 0 0 3px rgba(0,102,179,0.2);
+}
+
+.login-card .form-control.valid,
+.login-card .form-control.modified {
+    border-color: #e8eaed;
+}
+
+.login-container .valid.modified:not([type=checkbox]) {
+    outline: none;
+}
+
+.login-card .btn-primary {
+    padding: 0.85rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    background: #0066b3;
+    border-color: #0066b3;
+}
+
+.login-card .btn-primary:hover {
+    background: #004d8c;
+    border-color: #004d8c;
+}
+
+.login-card .btn-primary:disabled {
+    opacity: 0.8;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-subtitle {
+    color: #6c757d;
+    margin: 0;
+}
+
+.login-validation {
+    color: #b91c1c;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.login-error {
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.login-btn {
+    margin-top: 0.5rem;
+}
+
+.login-hint {
+    margin: 1.5rem 0 0;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.login-card .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+}

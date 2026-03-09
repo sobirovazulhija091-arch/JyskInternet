@@ -1,0 +1,97 @@
+.hero-carousel {
+    position: relative;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f1f5f9;
+    aspect-ratio: 3 / 1;
+    min-height: 280px;
+}
+
+.hero-carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+}
+
+.hero-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #e2e8f0 100%);
+    border: 1px dashed #cbd5e1;
+}
+
+.hero-slide-0 { background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%); }
+.hero-slide-1 { background: linear-gradient(135deg, #dbeafe 0%, #f1f5f9 100%); }
+.hero-slide-2 { background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%); }
+
+.hero-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.hero-carousel-btn:hover {
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    color: var(--jysk-blue);
+}
+
+.hero-carousel-prev { left: 1rem; }
+.hero-carousel-next { right: 1rem; }
+
+.hero-carousel-dots {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.hero-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.hero-dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.hero-dot.active {
+    background: #fff;
+    width: 28px;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .hero-carousel {
+        aspect-ratio: 16 / 9;
+        min-height: 200px;
+    }
+    
+    .hero-carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .hero-carousel-prev { left: 0.5rem; }
+    .hero-carousel-next { right: 0.5rem; }
+}

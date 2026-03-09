@@ -1,0 +1,84 @@
+@page "/home"
+@inject ProductApiService ProductApi
+@inject CategoryApiService CategoryApi
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>JYSK - Home</PageTitle>
+
+<div class="container">
+    <section class="jysk-hero-section mb-5">
+        <HeroCarousel />
+    </section>
+
+    @if (_categories?.Any() == true)
+    {
+        <section class="mb-5">
+            <h2 class="jysk-section-title mb-4">Catalog</h2>
+            <div class="row g-3">
+                @foreach (var c in _categories.Take(6))
+                {
+                    <div class="col-6 col-md-4">
+                        <NavLink href="@($"/products?category={c.Id}")" class="jysk-category-card-home text-decoration-none text-dark h-100">
+                            <div class="jysk-category-image-place"></div>
+                            <div class="jysk-category-card-body">
+                                <h6 class="jysk-category-card-title">@c.Name</h6>
+                            </div>
+                        </NavLink>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <section>
+        <h2 class="jysk-section-title mb-4">Featured Products</h2>
+        @if (_loading)
+        {
+            <p>Loading...</p>
+        }
+        else if (_products?.Any() == true)
+        {
+            <div class="row g-4">
+                @foreach (var p in _products.Take(8))
+                {
+                    <div class="col-6 col-md-3">
+                        <ProductCard Product="@p" />
+                    </div>
+                }
+            </div>
+            <div class="mt-4">
+                <NavLink href="/products" class="jysk-btn-outline">View All Products</NavLink>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No products available.</p>
+        }
+    </section>
+</div>
+
+@code {
+    private List<Product>? _products;
+    private List<Category>? _categories;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await Auth.HasChosenAsync())
+        {
+            Nav.NavigateTo("/", true);
+            return;
+        }
+        try
+        {
+            var productsTask = ProductApi.GetProductsAsync(1, 8);
+            var categoriesTask = CategoryApi.GetAllAsync();
+            await Task.WhenAll(productsTask, categoriesTask);
+            _products = (await productsTask)?.Items ?? [];
+            _categories = await categoriesTask ?? [];
+        }
+        catch { _products = []; _categories = []; }
+        finally { _loading = false; }
+    }
+}

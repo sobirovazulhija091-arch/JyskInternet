@@ -1,0 +1,85 @@
+.more-dropdown {
+    position: relative;
+}
+
+.more-btn {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.2s ease;
+}
+
+.more-btn:hover,
+.more-btn.active {
+    color: var(--jysk-blue);
+    border-color: var(--jysk-blue);
+    background: rgba(0, 102, 179, 0.04);
+}
+
+.more-chevron {
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+}
+
+.more-btn.active .more-chevron {
+    transform: rotate(180deg);
+}
+
+.more-menu {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    background: #fff;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    min-width: 220px;
+    padding: 0.5rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    animation: moreFadeIn 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+@keyframes moreFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.more-link {
+    display: block;
+    padding: 0.65rem 1rem;
+    color: #475569 !important;
+    text-decoration: none !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.more-link:hover {
+    background: rgba(0, 102, 179, 0.06) !important;
+    color: var(--jysk-blue) !important;
+}
+
+.more-link.active {
+    background: rgba(0, 102, 179, 0.08) !important;
+    color: var(--jysk-blue) !important;
+}
+
+.more-link--highlight {
+    color: var(--jysk-blue) !important;
+}
+
+.more-link--highlight:hover {
+    background: rgba(0, 102, 179, 0.12) !important;
+}
