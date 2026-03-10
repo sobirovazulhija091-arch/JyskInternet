@@ -1,0 +1,140 @@
+@page "/checkout"
+@inject CartService CartService
+@inject OrderApiService OrderApi
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Checkout - Jysk</PageTitle>
+
+@if (!_canCheckout)
+{
+    <div class="container py-5 text-center">
+        <p class="mb-3">Please log in to checkout.</p>
+        <NavLink href="/login" class="btn btn-primary">Log in</NavLink>
+    </div>
+}
+else if (!_items.Any())
+{
+    <div class="container py-5 text-center">
+        <p class="mb-3">Your cart is empty.</p>
+        <NavLink href="/products" class="btn btn-primary">Browse Products</NavLink>
+    </div>
+}
+else
+{
+    <div class="container jysk-checkout py-5">
+        <h2 class="jysk-section-title mb-4">Checkout</h2>
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="alert alert-danger">@_error</div>
+        }
+
+        <div class="row">
+            <div class="col-lg-7">
+                <EditForm Model="_model" OnValidSubmit="PlaceOrder">
+                    <DataAnnotationsValidator />
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Delivery Address</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Full address</label>
+                                <InputTextArea class="form-control" @bind-Value="_model.DeliveryAddress" rows="3" placeholder="Street, City, Postal Code" />
+                                <ValidationMessage For="@(() => _model.DeliveryAddress)" class="text-danger small" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Payment method</label>
+                                <InputSelect class="form-select" @bind-Value="_model.PaymentMethod">
+                                    <option value="0">Cash on delivery</option>
+                                    <option value="1">Card</option>
+                                    <option value="2">Online</option>
+                                </InputSelect>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@_submitting">
+                        @if (_submitting) { <span>Placing order...</span> }
+                        else { <span>Place Order</span> }
+                    </button>
+                </EditForm>
+            </div>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Order summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in _items)
+                            {
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>@item.ProductName x @item.Quantity</span>
+                                    <span>@((item.Price * item.Quantity).ToString("C"))</span>
+                                </li>
+                            }
+                        </ul>
+                        <hr />
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total</span>
+                            <span>@_total.ToString("C")</span>
+                        </div>
+                    </div>
+                </div>
+                <NavLink href="/cart" class="btn btn-outline-secondary mt-3 w-100">Back to cart</NavLink>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _canCheckout;
+    private List<CartItem> _items = [];
+    private decimal _total;
+    private CreateOrderDto _model = new();
+    private bool _submitting;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _canCheckout = await Auth.IsAuthenticatedAsync();
+        if (!_canCheckout) return;
+        _items = await CartService.GetItemsAsync();
+        _total = _items.Sum(i => i.Price * i.Quantity);
+        _model.TotalAmount = _total;
+        _model.Status = 1;
+    }
+
+    private async Task PlaceOrder()
+    {
+        _error = null;
+        _submitting = true;
+        try
+        {
+            _model.Items = _items.Select(i => new OrderItemDto
+            {
+                ProductId = i.ProductId,
+                Quantity = i.Quantity,
+                Price = i.Price
+            }).ToList();
+
+            var (success, err) = await OrderApi.CreateOrderAsync(_model);
+            if (success)
+            {
+                await CartService.ClearAsync();
+                Nav.NavigateTo("/checkout/success", true);
+            }
+            else
+            {
+                _error = err ?? "Order failed. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+}

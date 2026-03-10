@@ -14,5 +14,7 @@ builder.Services.AddScoped<ProductApiService>();
 builder.Services.AddScoped<CategoryApiService>();
 builder.Services.AddScoped<BrandApiService>();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<ApiClient>();
+builder.Services.AddScoped<OrderApiService>();
 
 await builder.Build().RunAsync();

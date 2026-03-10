@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using WebJysk.Admin.Models;
 
@@ -10,6 +11,18 @@ public class ProductApiService
     public ProductApiService(ApiClient apiClient)
     {
         _apiClient = apiClient;
+    }
+
+    private static async Task<Response<string>?> EnsureSuccessAndReadAsync(HttpResponseMessage response)
+    {
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<Response<string>>();
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+            throw new UnauthorizedAccessException("Session expired or insufficient permissions. Please log in with an admin account.");
+
+        var body = await response.Content.ReadAsStringAsync();
+        throw new HttpRequestException($"Request failed ({(int)response.StatusCode}): {body}");
     }
 
     public async Task<PagedResult<Product>?> GetAllAsync(FilterProduct? filter, PagedQuery query)
@@ -39,20 +52,20 @@ public class ProductApiService
     {
         var client = await _apiClient.GetAuthorizedClientAsync();
         var response = await client.PostAsJsonAsync("api/product", dto);
-        return await response.Content.ReadFromJsonAsync<Response<string>>();
+        return await EnsureSuccessAndReadAsync(response);
     }
 
     public async Task<Response<string>?> UpdateAsync(int id, ProductDto dto)
     {
         var client = await _apiClient.GetAuthorizedClientAsync();
         var response = await client.PutAsJsonAsync($"api/product/{id}", dto);
-        return await response.Content.ReadFromJsonAsync<Response<string>>();
+        return await EnsureSuccessAndReadAsync(response);
     }
 
     public async Task<Response<string>?> DeleteAsync(int id)
     {
         var client = await _apiClient.GetAuthorizedClientAsync();
         var response = await client.DeleteAsync($"api/product/{id}");
-        return await response.Content.ReadFromJsonAsync<Response<string>>();
+        return await EnsureSuccessAndReadAsync(response);
     }
 }

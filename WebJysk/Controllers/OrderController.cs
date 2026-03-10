@@ -11,8 +11,9 @@ public class OrderController(IOrderService service) : ControllerBase
 {
     private readonly IOrderService _service=service;
    
+    [Authorize(Roles = "User")]
     [HttpPost("create")]
-    public async Task<Response<string>> CreateOrderAsync(OrderDto dto)
+    public async Task<Response<string>> CreateOrderAsync([FromBody] OrderDto dto)
     {
         dto.UserId = User.FindFirst("sub")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         return await _service.CreateOrderAsync(dto);

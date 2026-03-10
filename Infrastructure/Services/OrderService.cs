@@ -23,28 +23,39 @@ public class OrderService(ApplicationDbContext dbContext):IOrderService
     public async Task<Response<string>> CreateOrderAsync(OrderDto dto)
     {
         if (dto.TotalAmount <= 0)
-        {
             return new Response<string>(HttpStatusCode.BadRequest, "TotalAmount must be greater than 0");
-        }
         if (string.IsNullOrWhiteSpace(dto.DeliveryAddress))
-        {
             return new Response<string>(HttpStatusCode.BadRequest, "Delivery address is required");
-        }
+        if (string.IsNullOrWhiteSpace(dto.UserId))
+            return new Response<string>(HttpStatusCode.Unauthorized, "User must be logged in");
+        if (dto.Items == null || !dto.Items.Any())
+            return new Response<string>(HttpStatusCode.BadRequest, "Order must contain at least one item");
 
         var order = new Order
-    {
-        UserId = dto.UserId,
-        PaymentMethod = dto.PaymentMethod,
-        Status = dto.status,
-        TotalAmount = dto.TotalAmount,
-        DeliveryAddress = dto.DeliveryAddress,
-        OrderDate = DateTime.UtcNow
-    };
+        {
+            UserId = dto.UserId,
+            PaymentMethod = dto.PaymentMethod,
+            Status = dto.status,
+            TotalAmount = dto.TotalAmount,
+            DeliveryAddress = dto.DeliveryAddress,
+            OrderDate = DateTime.UtcNow
+        };
+        await context.Orders.AddAsync(order);
+        await context.SaveChangesAsync();
 
-    await context.Orders.AddAsync(order);
-    await context.SaveChangesAsync();
+        foreach (var item in dto.Items)
+        {
+            context.OrderItems.Add(new OrderItem
+            {
+                OrderId = order.Id,
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                Price = item.Price
+            });
+        }
+        await context.SaveChangesAsync();
 
-    return new Response<string>(HttpStatusCode.OK, "Order created successfully");
+        return new Response<string>(HttpStatusCode.OK, "Order created successfully");
     }
 
     public async Task<PagedResult<Order>> GetAllAsync(FilterOrder filter, PagedQuery query)

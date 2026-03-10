@@ -3,6 +3,8 @@
 @inject ProductApiService ProductApi
 @inject CategoryApiService CategoryApi
 @inject BrandApiService BrandApi
+@inject AuthService Auth
+@inject NavigationManager Nav
 @inject IJSRuntime JS
 
 <PageTitle>Products - Jysk Admin</PageTitle>
@@ -10,6 +12,13 @@
 <AuthRedirect />
 
 <div class="admin-products-page">
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @_errorMessage
+            <button type="button" class="btn-close" @onclick="() => _errorMessage = null" aria-label="Close"></button>
+        </div>
+    }
     <div class="card border-0">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Products</h5>
@@ -226,26 +235,49 @@
 
     private void CloseModal() => _showModal = false;
 
+    private string? _errorMessage;
+
     private async Task SaveProduct()
     {
-        if (_editingId.HasValue)
+        _errorMessage = null;
+        try
         {
-            await ProductApi.UpdateAsync(_editingId.Value, _editDto);
+            if (_editingId.HasValue)
+                await ProductApi.UpdateAsync(_editingId.Value, _editDto);
+            else
+                await ProductApi.AddAsync(_editDto);
+            CloseModal();
+            await LoadProducts();
         }
-        else
+        catch (UnauthorizedAccessException)
         {
-            await ProductApi.AddAsync(_editDto);
+            await Auth.LogoutAsync();
+            Nav.NavigateTo("/login", true);
         }
-        CloseModal();
-        await LoadProducts();
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+        }
     }
 
     private async Task DeleteProduct(int id)
     {
-        if (await JS.InvokeAsync<bool>("confirm", "Delete this product?"))
+        if (!await JS.InvokeAsync<bool>("confirm", "Delete this product?"))
+            return;
+        _errorMessage = null;
+        try
         {
             await ProductApi.DeleteAsync(id);
             await LoadProducts();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            await Auth.LogoutAsync();
+            Nav.NavigateTo("/login", true);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
         }
     }
 

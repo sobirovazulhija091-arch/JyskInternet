@@ -12,21 +12,21 @@ public class ProductController(IProductService service) : ControllerBase
 {
     private readonly IProductService _service=service;
 
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<Response<string>> AddAsync([FromBody] ProductDto dto)
     {
         return await _service.AddAsync(dto);
     }
 
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin")]
     [HttpPost("{id}/image")]
     public async Task<Response<string>> UploadImageAsync(int id, IFormFile file)
     {
         return await _service.UploadImageAsync(id, file);
     }
 
-    [Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<Response<string>> UpdateAsync(int id, [FromBody] UpdateProductDto dto)
     {
