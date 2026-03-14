@@ -1,44 +1,48 @@
-using System.CodeDom.Compiler;
+using BenchmarkDotNet.Attributes;
+using Microsoft.EntityFrameworkCore;
+using Infrastructure.Data;
+using Infrastructure.Services;
 
 [MemoryDiagnoser]
-public class GetBrands
+public class GetBrandsBenchmark
 {
-   private ApplicationDbContext _context = null!;
-   private BrandService _service = null!;
-   [Params(100, 1000, 10000)]
-   public int BrandCount { get; set; }
+    private ApplicationDbContext _context = null!;
+    private BrandService _service = null!;
 
-   [GlobalSetup]
-   public async Task Setup()
-   {
-       var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-           .UseInMemoryDatabase($"brands-{BrandCount}")
-           .Options;
+    [Params(100, 1000, 10000)]
+    public int BrandCount { get; set; }
 
-       _context = new ApplicationDbContext(options);
-       _service = new BrandService(_context);
+    [GlobalSetup]
+    public async Task Setup()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase($"brands-{BrandCount}")
+            .Options;
 
-       var brands = Enumerable.Range(1, BrandCount)
-           .Select(index => new Brand
-           {
-               Id = index,
-               Name = $"Brand {index}",
-               Description = $"Brand description {index}"
-           });
+        _context = new ApplicationDbContext(options);
+        _service = new BrandService(_context);
 
-       await _context.Brands.AddRangeAsync(brands);
-       await _context.SaveChangesAsync();
-   }
+        var brands = Enumerable.Range(1, BrandCount)
+            .Select(index => new Brand
+            {
+                Id = index,
+                Name = $"Brand {index}",
+                Logo = $"Logo {index}"
+            });
 
-   [Benchmark]
-   public Task<List<BrandDto>> GetBrands()
-   {
-       return _service.GetBrands();
-   }
+        await _context.Brands.AddRangeAsync(brands);
+        await _context.SaveChangesAsync();
+    }
 
-   [GlobalCleanup]
-   public async Task Cleanup()
-   {
-       await _context.DisposeAsync();
-   }
+    [Benchmark]
+    public async Task GetBrands()
+    {
+        _ = await _service.GetAllAsync();
+    }
+
+    [GlobalCleanup]
+    public async Task Cleanup()
+    {
+        await _context.DisposeAsync();
+    }
 }

@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Xml;
-public class CategoryServce(ApplicationDbContext dbContext):ICategoryService
+namespace Infrastructure.Services;
+public class CategoryService(ApplicationDbContext dbContext):ICategoryService
 {
     private readonly ApplicationDbContext context = dbContext;
 

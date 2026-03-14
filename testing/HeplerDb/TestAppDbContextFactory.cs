@@ -1,6 +1,7 @@
-
 using Infrastructure.Data;
-namespace Test.HeplerDb;
+using Microsoft.EntityFrameworkCore;
+
+namespace Test.HelperDb;
 internal static class TestAppDbContextFactory
 {
     public static ApplicationDbContext CreateContext(string databaseName)

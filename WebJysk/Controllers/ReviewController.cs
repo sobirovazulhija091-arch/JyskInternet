@@ -1,6 +1,9 @@
 using System.Threading.Tasks;
+using Domain.DTOs;
+using Infrastructure.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 
 [ApiController]

@@ -1,3 +1,7 @@
+using Infrastructure.Services;
+using Domain.DTOs;
+using Test.HelperDb;
+
 public class CategoryServiceTest
 {
  [Fact]
@@ -10,5 +14,5 @@ public class CategoryServiceTest
           Name = "Phone"
      };
      var response = await service.AddAsync(category);
-     Assert.Equal("Category added successfully", response.Message);} 
+     Assert.Equal("Category created", response.Description?.FirstOrDefault());} 
 }

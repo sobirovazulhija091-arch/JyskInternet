@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quartz;
 using Infrastructure.Data;
+using Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -91,8 +92,8 @@ builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<IOrderService,OrderService>();
 builder.Services.AddScoped<IProductService,ProductService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
-    builder.Services.AddScoped<IStoreService, StoreService>();
-builder.Services.AddScoped<ICategoryService, CategoryServce>();
+builder.Services.AddScoped<IStoreService, StoreService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICartService,CartService>(); 
 builder.Services.AddScoped<IBrandService,BrandService>();
 builder.Services.AddScoped<IDeliveryService,DeliveryService>();

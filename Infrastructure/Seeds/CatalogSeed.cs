@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-
+using Infrastructure.Data;
 public static class CatalogSeed
 {
     public static async Task SeedAsync(ApplicationDbContext db)
