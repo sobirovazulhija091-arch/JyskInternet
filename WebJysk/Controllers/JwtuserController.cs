@@ -24,16 +24,17 @@ signInManager,IJwtService jwt,IEmailService emailService) : ControllerBase
         {
             UserName = dto.Email,
             Email = dto.Email,
-            FullName = dto.FullName
+            FullName = dto.FullName,
+            Phone = dto.Phone
         };
 
         var result = await _userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded)
             return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
 
-        var token = await _jwt.CreateTokenAsync(user);
-        await _emailService.SendAsync(dto.Email, "Registering to App", "You have successfully registered to our application!");
         await _userManager.AddToRoleAsync(user, "User");
+        var token = await _jwt.CreateTokenAsync(user);
+        await _emailService.SendAsync(dto.Email, "Welcome to JYSK", "You have successfully registered!");
         return Ok(new { token });
     }
 
@@ -79,10 +80,19 @@ public async Task<IActionResult> Login([FromBody] JsonElement? body)
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult Me()
-        => Ok(new
+    public async Task<IActionResult> Me()
+    {
+        var userId = User.FindFirst("sub")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Ok(new { name = User.Identity?.Name, email = (string?)null, phone = (string?)null, claims = User.Claims.Select(c => new { c.Type, c.Value }) });
+
+        var user = await _userManager.FindByIdAsync(userId);
+        return Ok(new
         {
-            name = User.Identity?.Name,
+            name = user?.FullName ?? User.Identity?.Name,
+            email = user?.Email,
+            phone = user?.Phone,
             claims = User.Claims.Select(c => new { c.Type, c.Value })
         });
+    }
 }

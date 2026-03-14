@@ -43,9 +43,9 @@ else
                             <td>@item.Price.ToString("C")</td>
                             <td>
                                 <div class="input-group input-group-sm" style="width:120px">
-                                    <button class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, item.Quantity - 1)">-</button>
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, Math.Max(1, item.Quantity - 1))">−</button>
                                     <input type="number" class="form-control text-center" value="@item.Quantity" @onchange="e => OnQtyChange(item.ProductId, e)" min="1" />
-                                    <button class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, item.Quantity + 1)">+</button>
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => UpdateQty(item.ProductId, item.Quantity + 1)">+</button>
                                 </div>
                             </td>
                             <td>@((item.Price * item.Quantity).ToString("C"))</td>

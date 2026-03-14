@@ -16,5 +16,6 @@ builder.Services.AddScoped<CategoryApiService>();
 builder.Services.AddScoped<BrandApiService>();
 builder.Services.AddScoped<OrderApiService>();
 builder.Services.AddScoped<UserApiService>();
+builder.Services.AddScoped<ReviewApiService>();
 
 await builder.Build().RunAsync();

@@ -1,13 +1,12 @@
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-    [Route("api/[controller]")]
-    [ApiController]
-    public class EmailController(IEmailService service, UserManager<User> userManager) : ControllerBase
+using Microsoft.Extensions.Configuration;
+
+[Route("api/[controller]")]
+[ApiController]
+public class EmailController(IEmailService service, UserManager<User> userManager, IConfiguration config) : ControllerBase
     {
           private readonly IEmailService _emailService = service;
         private readonly UserManager<User> _userManager = userManager;
@@ -16,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
         [HttpPost]
         public async Task<IActionResult> SendTestEmail()
         {
-            await _emailService.SendAsync("sobirovazulhija091@gamil.com",
+            await _emailService.SendAsync("sobirovazulhija091@gmail.com",
             "WELLCOME TO JYSK INTERNET SHOP",
             "Test email from WebJysk API");
             return Ok();
@@ -46,25 +45,24 @@ using Microsoft.AspNetCore.Mvc;
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
-        
             if (user == null)
                 return Ok();
-        
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        
-            var link = $"http://localhost:5244/api/MailTesting/reset-password?email={dto.Email}&token={Uri.EscapeDataString(token)}";
-        
+            var frontend = config["FrontendBaseUrl"] ?? "http://localhost:5211";
+            var link = $"{frontend}/reset-password?email={Uri.EscapeDataString(dto.Email)}&token={Uri.EscapeDataString(token)}";
+
             await _emailService.SendAsync(dto.Email,
-                "Reset Password",
-                $"Reset link: {link}");
-        
+                "Reset Password - JYSK",
+                $"Click the link below to reset your password:\n\n{link}\n\nThis link expires in 24 hours. If you did not request this, ignore this email.");
+
             return Ok();
         }
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)

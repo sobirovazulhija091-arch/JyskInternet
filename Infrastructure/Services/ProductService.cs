@@ -4,6 +4,8 @@ using Domain.DTOs;
 using Infrastructure.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using Infrastructure.Data;
+namespace Infrastructure.Services;
 public class ProductService(ApplicationDbContext dbContext):IProductService
 {
     private readonly ApplicationDbContext context= dbContext;
@@ -40,8 +42,8 @@ public class ProductService(ApplicationDbContext dbContext):IProductService
 
    public async Task<Response<string>> DeleteAsync(int productid)
     {
-        var product = await  context.Products.FindAsync(productid);
-        if(product == null){return new Response<string>(HttpStatusCode.NotFound,"Product not found");}
+         var product = await  context.Products.FindAsync(productid);
+         if(product == null){return new Response<string>(HttpStatusCode.NotFound,"Product not found");}
          context.Products.Remove(product);
           await context.SaveChangesAsync();
           return new Response<string>(HttpStatusCode.OK,"Deleted !");

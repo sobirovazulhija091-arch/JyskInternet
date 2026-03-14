@@ -2,6 +2,7 @@
 @inject ProductApiService ProductApi
 @inject CartService Cart
 @inject AuthService Auth
+@inject ReviewApiService ReviewApi
 @inject NavigationManager Nav
 
 <PageTitle>@(_product?.Name ?? "Product") - JYSK</PageTitle>
@@ -82,6 +83,54 @@
                     {
                         <p class="jysk-added-msg">✓ Added to cart!</p>
                     }
+
+                    <hr class="my-4" />
+                    <h4 class="mb-3">Reviews (Otziv)</h4>
+                    @if (_canAddToCart && !_reviewSubmitted)
+                    {
+                        <div class="jysk-review-form mb-4">
+                            <div class="mb-2">
+                                <label class="form-label">Your rating (1-5)</label>
+                                <select class="form-select" style="max-width:100px" @bind="_reviewRating">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Comment</label>
+                                <InputTextArea class="form-control" rows="2" @bind-Value="_reviewComment" placeholder="Write your review..." />
+                            </div>
+                            <button class="btn btn-primary btn-sm" @onclick="SubmitReview" disabled="@_reviewSubmitting">@(_reviewSubmitting ? "Sending..." : "Add review")</button>
+                            @if (!string.IsNullOrEmpty(_reviewError))
+                            {
+                                <p class="text-danger small mt-2">@_reviewError</p>
+                            }
+                        </div>
+                    }
+                    else if (!_canAddToCart)
+                    {
+                        <p class="text-muted small">Log in to add a review.</p>
+                    }
+                    @if (_reviews?.Any() == true)
+                    {
+                        <div class="jysk-reviews-list">
+                            @foreach (var r in _reviews)
+                            {
+                                <div class="jysk-review-card mb-2 p-3 border rounded">
+                                    <strong>@(r.User?.FullName ?? "User")</strong>
+                                    <span class="text-warning ms-2">★ @r.Rating</span>
+                                    <p class="mb-0 mt-1 small">@r.Comment</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (_reviews != null && !_reviews.Any())
+                    {
+                        <p class="text-muted small">No reviews yet. Be the first to review!</p>
+                    }
                 </div>
             </div>
         </div>
@@ -97,12 +146,19 @@
     private int _quantity = 1;
     private bool _added;
     private bool _canAddToCart = true;
+    private List<ReviewModel>? _reviews;
+    private int _reviewRating = 5;
+    private string _reviewComment = "";
+    private bool _reviewSubmitting;
+    private bool _reviewSubmitted;
+    private string? _reviewError;
 
     protected override async Task OnParametersSetAsync()
     {
         _loading = true;
         _canAddToCart = await Auth.IsAuthenticatedAsync();
         _product = await ProductApi.GetByIdAsync(Id);
+        _reviews = await ReviewApi.GetProductReviewsAsync(Id);
         _loading = false;
     }
 
@@ -111,5 +167,24 @@
         if (_product == null) return;
         await Cart.AddAsync(_product, _quantity);
         _added = true;
+    }
+
+    private async Task SubmitReview()
+    {
+        if (_product == null || string.IsNullOrWhiteSpace(_reviewComment)) return;
+        _reviewError = null;
+        _reviewSubmitting = true;
+        var (success, err) = await ReviewApi.AddReviewAsync(Id, _reviewRating, _reviewComment.Trim());
+        _reviewSubmitting = false;
+        if (success)
+        {
+            _reviewSubmitted = true;
+            _reviewComment = "";
+            _reviews = await ReviewApi.GetProductReviewsAsync(Id);
+        }
+        else
+        {
+            _reviewError = err;
+        }
     }
 }

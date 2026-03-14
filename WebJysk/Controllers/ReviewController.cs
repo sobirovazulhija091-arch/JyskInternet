@@ -8,6 +8,13 @@ using Microsoft.AspNetCore.Authorization;
 public class ReviewController(IReviewService service) : ControllerBase
 {
     private readonly IReviewService _service=service;
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<PagedResult<Review>> GetAllAsync([FromQuery] FilterReview? filter, [FromQuery] PagedQuery query)
+    {
+        return await _service.GetAllAsync(filter ?? new FilterReview(), query);
+    }
+
     [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<Response<string>> AddReviewAsync(ReviewDto dto)

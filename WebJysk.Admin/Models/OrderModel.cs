@@ -32,9 +32,9 @@ public enum EnumStatus
 
 public enum EnumPaymentMethod
 {
+    Cash = 0,
     Card = 1,
-    Cash = 2,
-    BankTransfer = 3
+    Online = 2
 }
 
 public class FilterOrder

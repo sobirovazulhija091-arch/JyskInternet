@@ -27,4 +27,11 @@ public class OrderApiService
         var body = await response.Content.ReadAsStringAsync();
         return (false, body.Length > 200 ? "Order failed. Please try again." : body);
     }
+
+    public async Task<List<Order>?> GetMyOrdersAsync()
+    {
+        var client = await _apiClient.GetAuthorizedClientAsync();
+        var res = await client.GetFromJsonAsync<Response<List<Order>>>("api/order/my-orders");
+        return res?.Data;
+    }
 }

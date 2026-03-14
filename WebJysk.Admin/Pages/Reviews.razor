@@ -1,0 +1,91 @@
+@page "/reviews"
+@layout AdminLayout
+@inject ReviewApiService ReviewApi
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Reviews (Otziv) - Jysk Admin</PageTitle>
+
+<AuthRedirect />
+
+<div class="reviews-page">
+    <div class="card border-0">
+        <div class="card-header">
+            <h5 class="mb-0">Reviews (Otziv)</h5>
+        </div>
+        <div class="card-body">
+            @if (_loading)
+            {
+                <p>Loading reviews...</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Product</th>
+                                <th>User</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in _reviews)
+                            {
+                                <tr>
+                                    <td>@r.Id</td>
+                                    <td>@(r.Product?.Name ?? $"#{r.ProductId}")</td>
+                                    <td>@(r.User?.FullName ?? r.UserId ?? "-")</td>
+                                    <td>★ @r.Rating</td>
+                                    <td style="max-width:300px">@(r.Comment ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (_paged.HasPrevious || _paged.HasNext)
+                {
+                    <div class="d-flex gap-2 mt-4 align-items-center">
+                        <button class="btn btn-outline-secondary btn-sm" disabled="@(!_paged.HasPrevious)" @onclick="PrevPage">← Previous</button>
+                        <span class="text-muted">Page @_paged.Page of @_paged.TotalPages</span>
+                        <button class="btn btn-outline-secondary btn-sm" disabled="@(!_paged.HasNext)" @onclick="NextPage">Next →</button>
+                    </div>
+                }
+                @if (_reviews.Count == 0)
+                {
+                    <p class="text-muted">No reviews yet.</p>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ReviewModel> _reviews = [];
+    private PagedResult<ReviewModel> _paged = new();
+    private FilterReview _filter = new();
+    private PagedQuery _query = new() { Page = 1, PageSize = 15 };
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        _loading = true;
+        try
+        {
+            var res = await ReviewApi.GetAllAsync(_filter, _query);
+            if (res != null)
+            {
+                _paged = res;
+                _reviews = res.Items ?? [];
+            }
+        }
+        finally { _loading = false; }
+    }
+
+    private async Task PrevPage() { _query.Page--; await Load(); }
+    private async Task NextPage() { _query.Page++; await Load(); }
+}

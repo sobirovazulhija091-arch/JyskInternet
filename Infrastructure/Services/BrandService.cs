@@ -1,4 +1,5 @@
 using System.Net;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 public class BrandService(ApplicationDbContext dbContext):IBrandService
 {

@@ -1,0 +1,18 @@
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@code {
+    private static readonly string[] PublicPaths = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var path = new Uri(Nav.Uri).AbsolutePath.TrimEnd('/');
+        if (string.IsNullOrEmpty(path)) path = "/";
+
+        if (PublicPaths.Contains(path, StringComparer.OrdinalIgnoreCase))
+            return;
+
+        if (!await Auth.IsAuthenticatedAsync())
+            Nav.NavigateTo("/", true);
+    }
+}

@@ -1,5 +1,6 @@
 using System.Net;
 using Domain.DTOs;
+using Infrastructure.Data;
 using Infrastructure.Responses;
 using Microsoft.EntityFrameworkCore;
 public class UserService(ApplicationDbContext dbContext):IUserService

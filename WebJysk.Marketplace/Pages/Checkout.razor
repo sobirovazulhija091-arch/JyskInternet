@@ -22,65 +22,70 @@ else if (!_items.Any())
 }
 else
 {
-    <div class="container jysk-checkout py-5">
-        <h2 class="jysk-section-title mb-4">Checkout</h2>
+    <div class="jysk-checkout-page">
+        <div class="jysk-checkout-header">
+            <h1 class="jysk-checkout-title">Checkout</h1>
+            <p class="jysk-checkout-subtitle">Complete your order and our courier will deliver to you</p>
+        </div>
 
         @if (!string.IsNullOrEmpty(_error))
         {
-            <div class="alert alert-danger">@_error</div>
+            <div class="jysk-checkout-error">@_error</div>
         }
 
-        <div class="row">
-            <div class="col-lg-7">
+        <div class="jysk-checkout-grid">
+            <div class="jysk-checkout-form-col">
+                <div class="jysk-checkout-delivery-info">
+                    <span class="jysk-checkout-delivery-icon">🚚</span>
+                    <div>
+                        <strong>Home delivery</strong>
+                        <p>Our courier will bring your order to the address below. You'll receive a message when your delivery is on the way and when it has been completed.</p>
+                    </div>
+                </div>
+
                 <EditForm Model="_model" OnValidSubmit="PlaceOrder">
                     <DataAnnotationsValidator />
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">Delivery Address</h5>
-                            <div class="mb-3">
-                                <label class="form-label">Full address</label>
-                                <InputTextArea class="form-control" @bind-Value="_model.DeliveryAddress" rows="3" placeholder="Street, City, Postal Code" />
-                                <ValidationMessage For="@(() => _model.DeliveryAddress)" class="text-danger small" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Payment method</label>
-                                <InputSelect class="form-select" @bind-Value="_model.PaymentMethod">
-                                    <option value="0">Cash on delivery</option>
-                                    <option value="1">Card</option>
-                                    <option value="2">Online</option>
-                                </InputSelect>
-                            </div>
+                    <div class="jysk-checkout-card">
+                        <h3 class="jysk-checkout-card-title">Delivery Address</h3>
+                        <div class="jysk-checkout-field">
+                            <label class="jysk-checkout-label">Full address</label>
+                            <InputTextArea class="jysk-checkout-input" @bind-Value="_model.DeliveryAddress" rows="3" placeholder="Street, City, Postal Code" />
+                            <ValidationMessage For="@(() => _model.DeliveryAddress)" class="jysk-checkout-validation" />
+                        </div>
+                        <div class="jysk-checkout-field">
+                            <label class="jysk-checkout-label">Payment method</label>
+                            <InputSelect class="jysk-checkout-select" @bind-Value="_paymentMethodStr">
+                                <option value="0">Cash on delivery</option>
+                                <option value="1">Card</option>
+                                <option value="2">Online</option>
+                            </InputSelect>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@_submitting">
+                    <button type="submit" class="jysk-checkout-btn" disabled="@_submitting">
                         @if (_submitting) { <span>Placing order...</span> }
                         else { <span>Place Order</span> }
                     </button>
                 </EditForm>
             </div>
-            <div class="col-lg-5">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Order summary</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            @foreach (var item in _items)
-                            {
-                                <li class="list-group-item d-flex justify-content-between px-0">
-                                    <span>@item.ProductName x @item.Quantity</span>
-                                    <span>@((item.Price * item.Quantity).ToString("C"))</span>
-                                </li>
-                            }
-                        </ul>
-                        <hr />
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total</span>
-                            <span>@_total.ToString("C")</span>
-                        </div>
+
+            <div class="jysk-checkout-summary-col">
+                <div class="jysk-checkout-card jysk-checkout-summary">
+                    <h3 class="jysk-checkout-card-title">Order summary</h3>
+                    <ul class="jysk-checkout-items">
+                        @foreach (var item in _items)
+                        {
+                            <li class="jysk-checkout-item">
+                                <span>@item.ProductName × @item.Quantity</span>
+                                <span>@((item.Price * item.Quantity).ToString("C"))</span>
+                            </li>
+                        }
+                    </ul>
+                    <div class="jysk-checkout-total">
+                        <span>Total</span>
+                        <span>@_total.ToString("C")</span>
                     </div>
                 </div>
-                <NavLink href="/cart" class="btn btn-outline-secondary mt-3 w-100">Back to cart</NavLink>
+                <NavLink href="/cart" class="jysk-checkout-back">← Back to cart</NavLink>
             </div>
         </div>
     </div>
@@ -94,6 +99,8 @@ else
     private bool _submitting;
     private string? _error;
 
+    private string _paymentMethodStr = "0";
+
     protected override async Task OnInitializedAsync()
     {
         _canCheckout = await Auth.IsAuthenticatedAsync();
@@ -102,6 +109,7 @@ else
         _total = _items.Sum(i => i.Price * i.Quantity);
         _model.TotalAmount = _total;
         _model.Status = 1;
+        _model.PaymentMethod = 0;
     }
 
     private async Task PlaceOrder()
@@ -110,6 +118,7 @@ else
         _submitting = true;
         try
         {
+            _model.PaymentMethod = int.TryParse(_paymentMethodStr, out var pm) ? pm : 0;
             _model.Items = _items.Select(i => new OrderItemDto
             {
                 ProductId = i.ProductId,

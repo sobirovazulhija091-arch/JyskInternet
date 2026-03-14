@@ -1,0 +1,205 @@
+@page "/account"
+@inject AuthService Auth
+@inject OrderApiService OrderApi
+@inject NavigationManager Nav
+@layout MainLayout
+
+<PageTitle>My Account - Jysk</PageTitle>
+
+<div class="jysk-account">
+    <div class="container py-4">
+        <div class="row">
+            <!-- Profile section - GitHub style -->
+            <div class="col-lg-4 col-md-12 mb-4">
+                <div class="jysk-account-profile">
+                    <div class="jysk-account-avatar">
+                        @if (!string.IsNullOrEmpty(_userName))
+                        {
+                            <span class="jysk-account-avatar-text">@GetInitials(_userName)</span>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        }
+                    </div>
+                    <h2 class="jysk-account-name">@(_userName ?? "User")</h2>
+                    @if (!string.IsNullOrEmpty(_userEmail))
+                    {
+                        <p class="jysk-account-email">@_userEmail</p>
+                    }
+                    @if (!string.IsNullOrEmpty(_userPhone))
+                    {
+                        <p class="jysk-account-phone">@_userPhone</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Content section with tabs -->
+            <div class="col-lg-8 col-md-12">
+                <div class="jysk-account-tabs">
+                    <button class="jysk-account-tab @(_activeTab == "orders" ? "active" : "")" @onclick='() => _activeTab = "orders"'>
+                        Orders @(_orders?.Count ?? 0)
+                    </button>
+                    <button class="jysk-account-tab @(_activeTab == "deliveries" ? "active" : "")" @onclick='() => _activeTab = "deliveries"'>
+                        Deliveries @(_deliveriesCount)
+                    </button>
+                </div>
+
+                @if (_loading)
+                {
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Loading...</p>
+                    </div>
+                }
+                else if (_activeTab == "orders")
+                {
+                    <div class="jysk-account-orders">
+                        @if (_orders == null || _orders.Count == 0)
+                        {
+                            <div class="jysk-account-empty">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="text-muted"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+                                <h5>No orders yet</h5>
+                                <p class="text-muted">Your orders will appear here after you place them.</p>
+                                <NavLink href="/products" class="btn btn-primary mt-2">Browse products</NavLink>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var order in _orders.OrderByDescending(o => o.OrderDate))
+                            {
+                                <div class="jysk-account-order-card">
+                                    <div class="jysk-account-order-header">
+                                        <span class="jysk-account-order-id">#@order.Id</span>
+                                        <span class="jysk-account-order-date">@order.OrderDate.ToString("MMM d, yyyy")</span>
+                                        <span class="jysk-account-order-status @GetStatusClass(order.Status)">@GetStatusText(order.Status)</span>
+                                    </div>
+                                    <div class="jysk-account-order-address">@order.DeliveryAddress</div>
+                                    <div class="jysk-account-order-meta">
+                                        <span>Home delivery</span>
+                                        <span class="text-muted">•</span>
+                                        <span>Payment: @GetPaymentText(order.PaymentMethod)</span>
+                                    </div>
+                                    <div class="jysk-account-order-items">
+                                        @{
+                                            var items = order.OrderItems ?? [];
+                                        }
+                                        @for (var i = 0; i < items.Count; i++)
+                                        {
+                                            var item = items[i];
+                                            <span>@(item.Product?.Name ?? "Product") × @item.Quantity</span>
+                                            @if (i < items.Count - 1) { <span class="text-muted">•</span> }
+                                        }
+                                    </div>
+                                    <div class="jysk-account-order-total"><strong>@order.TotalAmount.ToString("N2") TJS</strong></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="jysk-account-deliveries">
+                        @{
+                            var deliveries = _orders?.Where(o => o.Status == 2 || o.Status == 3).ToList() ?? [];
+                        }
+                        @if (deliveries.Count == 0)
+                        {
+                            <div class="jysk-account-empty">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="text-muted"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                                <h5>No deliveries</h5>
+                                <p class="text-muted">Orders in transit or delivered will appear here.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var order in deliveries.OrderByDescending(o => o.OrderDate))
+                            {
+                                <div class="jysk-account-order-card jysk-account-delivery-card">
+                                    <div class="jysk-account-order-header">
+                                        <span class="jysk-account-order-id">#@order.Id</span>
+                                        <span class="jysk-account-order-date">@order.OrderDate.ToString("MMM d, yyyy")</span>
+                                        <span class="jysk-account-order-status @GetStatusClass(order.Status)">@GetStatusText(order.Status)</span>
+                                    </div>
+                                    <div class="jysk-account-order-address">@order.DeliveryAddress</div>
+                                    <div class="jysk-account-order-meta">
+                                        <span>Home delivery</span>
+                                        <span class="text-muted">•</span>
+                                        <span>Payment: @GetPaymentText(order.PaymentMethod)</span>
+                                    </div>
+                                    <div class="jysk-account-delivery-status">
+                                        @if (order.Status == 2)
+                                        {
+                                            <span class="text-primary">🚚 On the way</span>
+                                        }
+                                        else if (order.Status == 3)
+                                        {
+                                            <span class="text-success">✓ Delivered</span>
+                                        }
+                                    </div>
+                                    <div class="jysk-account-order-total">@order.TotalAmount.ToString("N2") TJS</div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _activeTab = "orders";
+    private string? _userName;
+    private string? _userEmail;
+    private string? _userPhone;
+    private List<Order>? _orders;
+    private bool _loading = true;
+
+    private int _deliveriesCount => _orders?.Count(o => o.Status == 2 || o.Status == 3) ?? 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var info = await Auth.GetUserInfoAsync();
+        _userName = info?.Name;
+        _userEmail = info?.Email;
+        _userPhone = info?.Phone;
+
+        _orders = await OrderApi.GetMyOrdersAsync();
+        _loading = false;
+    }
+
+    private static string GetInitials(string name)
+    {
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{char.ToUpper(parts[0][0])}{char.ToUpper(parts[^1][0])}";
+        return name.Length >= 2 ? name[..2].ToUpper() : name.ToUpperInvariant();
+    }
+
+    private static string GetStatusText(int status) => status switch
+    {
+        1 => "Paid",
+        2 => "Processing",
+        3 => "Delivered",
+        4 => "Cancelled",
+        _ => "Unknown"
+    };
+
+    private static string GetStatusClass(int status) => status switch
+    {
+        1 => "status-paid",
+        2 => "status-processing",
+        3 => "status-delivered",
+        4 => "status-cancelled",
+        _ => ""
+    };
+
+    private static string GetPaymentText(int method) => method switch
+    {
+        0 => "Cash on delivery",
+        1 => "Card",
+        2 => "Online",
+        _ => "—"
+    };
+}

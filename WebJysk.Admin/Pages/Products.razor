@@ -139,6 +139,10 @@
                                 <InputNumber class="form-control" @bind-Value="_editDto.StockQuantity" />
                             </div>
                         </div>
+                        <div class="mb-2">
+                            <label class="form-label">Sale price (0 = no sale, discount price shown instead of regular price)</label>
+                            <InputNumber class="form-control" @bind-Value="_editDto.DiscountPrice" placeholder="0" />
+                        </div>
                         <div class="row">
                             <div class="col-6 mb-2">
                                 <label class="form-label">Category</label>

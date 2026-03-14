@@ -57,6 +57,17 @@
     color: #fff !important;
 }
 
+.welcome-btn-outline {
+    background: transparent;
+    border: 2px solid var(--jysk-blue);
+    color: var(--jysk-blue);
+}
+
+.welcome-btn-outline:hover {
+    background: rgba(0, 102, 179, 0.08);
+    color: var(--jysk-blue);
+}
+
 .welcome-btn-secondary {
     background: #f8fafc;
     border: 1px solid #e2e8f0;

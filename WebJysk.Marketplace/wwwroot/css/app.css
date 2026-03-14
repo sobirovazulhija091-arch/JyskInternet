@@ -451,3 +451,609 @@ a.jysk-link:hover::after {
 .jysk-main .text-muted {
     color: #6c757d !important;
 }
+
+/* Auth pages - Login, Register, ForgotPassword */
+.auth-page,
+.login-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+}
+
+.auth-card,
+.login-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 2.5rem 2.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before,
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--jysk-blue), #0088dd);
+}
+
+.auth-card .login-title,
+.login-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.auth-card .login-subtitle,
+.login-subtitle {
+    color: #64748b;
+    margin-bottom: 1.75rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.auth-card .form-label,
+.login-form .form-label {
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.4rem;
+}
+
+.auth-card .form-control,
+.login-form .form-control {
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-card .form-control:focus,
+.login-form .form-control:focus {
+    border-color: var(--jysk-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.15);
+    outline: none;
+}
+
+.auth-card .login-error,
+.login-error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #b91c1c;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    border: 1px solid #fecaca;
+}
+
+.auth-card .login-submit,
+.login-submit {
+    margin-top: 0.5rem;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.auth-card .login-submit:hover:not(:disabled),
+.login-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgba(0, 102, 179, 0.5);
+}
+
+.auth-card .validation-message,
+.login-card .validation-message {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.login-back {
+    display: block;
+    margin-top: 1.25rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-back:hover {
+    color: var(--jysk-blue);
+}
+
+/* Checkout page */
+.jysk-checkout-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.jysk-checkout-header {
+    margin-bottom: 2rem;
+}
+
+.jysk-checkout-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.jysk-checkout-subtitle {
+    color: #64748b;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.jysk-checkout-error {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #b91c1c;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #fecaca;
+}
+
+.jysk-checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 991px) {
+    .jysk-checkout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.jysk-checkout-delivery-info {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #bfdbfe;
+}
+
+.jysk-checkout-delivery-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.jysk-checkout-delivery-info strong {
+    display: block;
+    color: #1e40af;
+    margin-bottom: 0.25rem;
+}
+
+.jysk-checkout-delivery-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.jysk-checkout-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+
+.jysk-checkout-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+}
+
+.jysk-checkout-field {
+    margin-bottom: 1.25rem;
+}
+
+.jysk-checkout-field:last-child {
+    margin-bottom: 0;
+}
+
+.jysk-checkout-label {
+    display: block;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.4rem;
+}
+
+.jysk-checkout-input,
+.jysk-checkout-select {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.jysk-checkout-input:focus,
+.jysk-checkout-select:focus {
+    border-color: var(--jysk-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.15);
+    outline: none;
+}
+
+.jysk-checkout-validation {
+    font-size: 0.8rem;
+    color: #dc2626;
+    margin-top: 0.25rem;
+}
+
+.jysk-checkout-btn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--jysk-blue) 0%, #0088dd 100%);
+    color: #fff !important;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.jysk-checkout-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -8px rgba(0, 102, 179, 0.5);
+}
+
+.jysk-checkout-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.jysk-checkout-summary {
+    position: sticky;
+    top: 1rem;
+}
+
+.jysk-checkout-items {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.jysk-checkout-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    color: #334155;
+}
+
+.jysk-checkout-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.jysk-checkout-back {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-top: 1rem;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.jysk-checkout-back:hover {
+    border-color: var(--jysk-blue);
+    color: var(--jysk-blue);
+}
+
+/* Order success page */
+.jysk-order-success {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+}
+
+.jysk-order-success-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 2.5rem 3rem;
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.jysk-order-success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.jysk-order-success-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.jysk-order-success-text {
+    color: #64748b;
+    margin-bottom: 1.75rem;
+}
+
+.jysk-order-success-delivery {
+    display: flex;
+    gap: 1rem;
+    text-align: left;
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.jysk-order-success-delivery-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.jysk-order-success-delivery strong {
+    display: block;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+}
+
+.jysk-order-success-delivery p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.jysk-order-success-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.jysk-order-success-btn-primary {
+    padding: 0.75rem 1.5rem;
+    background: var(--jysk-blue);
+    color: #fff !important;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.jysk-order-success-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgba(0, 102, 179, 0.5);
+}
+
+.jysk-order-success-btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background: #f1f5f9;
+    color: #475569 !important;
+    border-radius: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    transition: border-color 0.2s;
+}
+
+.jysk-order-success-btn-secondary:hover {
+    border-color: var(--jysk-blue);
+    color: var(--jysk-blue) !important;
+}
+
+/* Account page - GitHub-inspired profile */
+.jysk-account {
+    min-height: 60vh;
+}
+
+.jysk-account-profile {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.jysk-account-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--jysk-blue) 0%, var(--jysk-blue-dark) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.jysk-account-avatar-text {
+    line-height: 1;
+}
+
+.jysk-account-avatar svg {
+    opacity: 0.9;
+}
+
+.jysk-account-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.jysk-account-email {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.jysk-account-phone {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.jysk-account-order-meta {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.jysk-account-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.jysk-account-tab {
+    padding: 0.75rem 1.25rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.jysk-account-tab:hover {
+    color: #1e293b;
+}
+
+.jysk-account-tab.active {
+    color: var(--jysk-blue);
+    border-bottom-color: var(--jysk-blue);
+}
+
+.jysk-account-order-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.jysk-account-order-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.jysk-account-order-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.jysk-account-order-id {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.jysk-account-order-date {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.jysk-account-order-status {
+    margin-left: auto;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.jysk-account-order-status.status-paid { background: #dbeafe; color: #1d4ed8; }
+.jysk-account-order-status.status-processing { background: #fef3c7; color: #b45309; }
+.jysk-account-order-status.status-delivered { background: #d1fae5; color: #047857; }
+.jysk-account-order-status.status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+.jysk-account-order-address {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.jysk-account-order-items {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.jysk-account-order-items span {
+    margin: 0 0.2rem;
+}
+
+.jysk-account-order-total {
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.jysk-account-delivery-status {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.jysk-account-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #e2e8f0;
+}
+
+.jysk-account-empty h5 {
+    margin-top: 1rem;
+    color: #475569;
+}
+
+.jysk-account-empty p {
+    margin-bottom: 0;
+}

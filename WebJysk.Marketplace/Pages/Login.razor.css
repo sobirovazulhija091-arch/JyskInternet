@@ -1,49 +1,95 @@
 .login-page {
-    min-height: 50vh;
+    min-height: calc(100vh - 200px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
 }
 
 .login-card {
     background: #fff;
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
-    max-width: 400px;
+    border-radius: 24px;
+    padding: 2.5rem 2.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    max-width: 420px;
     width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--jysk-blue), #0088dd);
 }
 
 .login-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.25rem;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
 }
 
 .login-subtitle {
     color: #64748b;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.login-form .form-label {
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.4rem;
 }
 
 .login-form .form-control {
-    border-radius: 10px;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form .form-control:focus {
+    border-color: var(--jysk-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.15);
+    outline: none;
 }
 
 .login-error {
-    background: #fef2f2;
-    color: #dc2626;
-    padding: 0.75rem;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #b91c1c;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
     font-size: 0.9rem;
     margin-bottom: 1rem;
+    border: 1px solid #fecaca;
 }
 
 .login-submit {
     margin-top: 0.5rem;
-    border-radius: 10px;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.login-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -8px rgba(0, 102, 179, 0.5);
+}
+
+.login-submit:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .login-back {
@@ -51,8 +97,28 @@
     margin-top: 1.25rem;
     color: #64748b;
     font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s;
 }
 
 .login-back:hover {
     color: var(--jysk-blue);
+}
+
+.login-form a[href="/register"],
+.login-form a[href="/forgot-password"],
+.login-card > p a {
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-card > p {
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.auth-card .validation-message {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
 }

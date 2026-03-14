@@ -39,6 +39,9 @@
                             <tr>
                                 <th>Id</th>
                                 <th>User</th>
+                                <th>Phone</th>
+                                <th>Delivery</th>
+                                <th>Payment</th>
                                 <th>Date</th>
                                 <th>Total</th>
                                 <th>Status</th>
@@ -50,6 +53,9 @@
                                 <tr>
                                     <td><span class="fw-medium">#@o.Id</span></td>
                                     <td>@(o.User?.FullName ?? o.UserId ?? "-")</td>
+                                    <td>@(o.User?.Phone ?? "-")</td>
+                                    <td>Home delivery</td>
+                                    <td>@GetPaymentText(o.PaymentMethod)</td>
                                     <td>@o.OrderDate.ToString("yyyy-MM-dd")</td>
                                     <td class="fw-semibold">@o.TotalAmount.ToString("C")</td>
                                     <td>
@@ -112,4 +118,15 @@
 
     private async Task PrevPage() { _query.Page--; await Load(); }
     private async Task NextPage() { _query.Page++; await Load(); }
+
+    private static string GetPaymentText(EnumPaymentMethod method)
+    {
+        return (int)method switch
+        {
+            0 => "Cash",
+            1 => "Card",
+            2 => "Online",
+            _ => "—"
+        };
+    }
 }

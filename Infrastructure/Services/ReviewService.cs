@@ -1,4 +1,5 @@
 using Domain.DTOs;
+using Infrastructure.Data;
 using Infrastructure.Responses;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -49,10 +50,10 @@ public class ReviewService(ApplicationDbContext dbContext):IReviewService
          {
          reviews  = reviews.Where(r => r.Rating == filter.Rating);
          }
-          var total = await    reviews.CountAsync();
+          var total = await reviews.CountAsync();
       var page = query.Page > 0 ? query.Page : 1;
       var pageSize = query.PageSize > 0 ? query.PageSize : 10;
-      reviews =  reviews.Skip((page-1)*pageSize).Take(pageSize);
+      reviews = reviews.Skip((page-1)*pageSize).Take(pageSize).Include(r => r.User).Include(r => r.Product);
     var review = await reviews.ToListAsync();
     return new PagedResult<Review>
     {

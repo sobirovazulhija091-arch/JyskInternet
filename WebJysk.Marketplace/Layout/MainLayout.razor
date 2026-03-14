@@ -4,6 +4,7 @@
 @inject NavigationManager Nav
 @implements IDisposable
 
+<AuthGate />
 <div class="jysk-layout">
     <!-- Top bar -->
     <div class="jysk-topbar">
@@ -60,6 +61,7 @@
                     }
                     @if (_isLoggedIn)
                     {
+                        <NavLink href="/account" class="btn btn-sm btn-outline-primary ms-1">Account</NavLink>
                         <button type="button" class="btn btn-sm btn-outline-secondary ms-1" @onclick="Logout">Logout</button>
                     }
                 </div>

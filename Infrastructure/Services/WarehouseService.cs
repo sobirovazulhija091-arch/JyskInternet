@@ -1,4 +1,5 @@
 
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 public class WarehouseService(ApplicationDbContext dbContext):IWarehouseService
