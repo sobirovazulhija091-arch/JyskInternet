@@ -95,7 +95,7 @@ public class OrderService(ApplicationDbContext dbContext, IEmailService emailSer
 
             var body = $@"Hello {order.User.FullName},
 
-Thank you for your order #{orderId}!
+            Thank you for your order #{orderId}!
 
 Your order total: {order.TotalAmount:N2}
 Delivery address: {order.DeliveryAddress}

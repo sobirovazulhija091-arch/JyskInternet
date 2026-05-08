@@ -1,17 +1,20 @@
 using System.Security.Claims;
+using System.Net.Mail;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 [ApiController]
 [Route("api/auth")]
 public class JwtUserController( UserManager<User> userManager,SignInManager<User> 
-signInManager,IJwtService jwt,IEmailService emailService) : ControllerBase
+signInManager,IJwtService jwt,IEmailService emailService, ILogger<JwtUserController> logger) : ControllerBase
 {
     private readonly UserManager<User> _userManager= userManager;
     private readonly SignInManager<User> _signInManager= signInManager;
     private readonly IJwtService _jwt= jwt;
     private readonly IEmailService _emailService= emailService; 
+    private readonly ILogger<JwtUserController> _logger = logger;
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto dto)
@@ -34,7 +37,20 @@ signInManager,IJwtService jwt,IEmailService emailService) : ControllerBase
 
         await _userManager.AddToRoleAsync(user, "User");
         var token = await _jwt.CreateTokenAsync(user);
-        await _emailService.SendAsync(dto.Email, "Welcome to JYSK", "You have successfully registered!");
+
+        try
+        {
+            await _emailService.SendAsync(dto.Email, "Welcome to JYSK", "You have successfully registered!");
+        }
+        catch (SmtpException ex)
+        {
+            _logger.LogWarning(ex, "User {Email} was registered, but the welcome email could not be sent.", dto.Email);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "User {Email} was registered, but email settings are invalid.", dto.Email);
+        }
+
         return Ok(new { token });
     }
 
